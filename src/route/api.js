@@ -1,0 +1,22 @@
+import express from 'express';
+import { authMiddleware } from '../middleware/auth-middleware.js';
+import userController from '../controller/user-controller.js';
+import tenantController from '../controller/tenant-controller.js';
+
+export const userRouter = new express.Router();
+userRouter.use(authMiddleware);
+
+// User API
+userRouter.get('/auth/me', userController.getCurrentUserInformation);
+userRouter.patch('/auth/me', userController.editCurrentUserInformation);
+userRouter.delete('/auth/me', userController.deleteUser);
+userRouter.patch('/auth/password', userController.changePassword);
+
+// Tenant API
+userRouter.post('/tenants', tenantController.create);
+userRouter.get('/tenants', tenantController.getAssociatedTenants);
+userRouter.get('/tenants/:tenantId', tenantController.getTenantById);
+userRouter.put('/tenants/:tenantId', tenantController.edit);
+userRouter.delete('/tenants/:tenantId', tenantController.deleteTenant);
+userRouter.post('/tenants/:tenantId/invite', tenantController.inviteUser);
+userRouter.get('/tenants/:tenantId/members', tenantController.getAllMembers);

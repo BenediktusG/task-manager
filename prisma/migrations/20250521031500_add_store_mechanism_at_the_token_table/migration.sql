@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `Token` ADD COLUMN `usedAt` DATETIME(3) NULL,
+    ADD COLUMN `valid` BOOLEAN NOT NULL DEFAULT true;

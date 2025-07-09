@@ -1,0 +1,135 @@
+asyncapi: '2.6.0'
+info: 
+  title: Multi-Tenant Task Manager WebSocket API
+  version: '1.0.0'
+  description: Real-time WebSocket API for managing tasks (create, update, delete, assign).
+
+servers:
+  production:
+    url: https://localhost:3000/
+    protocol: ws
+    description: Production WebSocket server
+
+channels:
+  task/created:
+    description: Channel for new task creation events
+    subscribe:
+      summary: Receive notification when a new task is created.
+      operationId: onTaskCreated
+      message:
+        $ref: '#/components/messages/TaskCreated'
+  
+  task/updated:
+    description: Channel for task updates
+    subscribe:
+      summary: Receive notification when a task is updated.
+      operationId: onTaskUpdated
+      message:
+          $ref: '#/components/messages/TaskUpdated'
+  
+  task/assigned:
+    description: Channel for task assignment events.
+    subscribe:
+      summary: Receive notification when a user is assigned to a task.
+      operationId: onTaskAssigned
+      message:
+        $ref: '#/components/messages/TaskAssigned'
+  
+  task/deleted:
+    description: Channel for task deletion events.
+    subscribe:
+      summary: Receive notification when a task is deleted.
+      operationId: onTaskDeleted
+      message:
+        $ref: '#/components/messages/TaskDeleted'
+    
+
+components:
+  messages:
+    TaskCreated:
+      name: TaskCreated
+      title: Task Created Message
+      summary: Message sent when a new task is created.
+      payload:
+        $ref: '#/components/schemas/TaskCreated'
+    
+    TaskUpdated:  
+      name: TaskUpdated
+      title: Task Updated Message
+      summary: Message sent when a task is updated.
+      payload:
+        $ref: '#/components/schemas/TaskUpdated'
+    
+    TaskDeleted: 
+      name: TaskDeleted
+      title: Task Deleted Message
+      summary: Message sent when a task is deleted.
+      payload:
+        $ref: '#/components/schemas/TaskDeleted'
+    
+    TaskAssigned:
+      name: TaskAssigned
+      title: Task Assigned Message
+      summary: Message sent when a user is assigned a task.
+      payload:
+        $ref: '#/components/schemas/TaskAssigned'
+
+  schemas:
+    TaskCreated:
+      type: object
+      properties: 
+        id: 
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+
+    TaskUpdated:
+      type: object
+      properties: 
+        id: 
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+          format: uuid
+    
+    TaskDeleted:
+      type: object
+      properties: 
+        id:
+          type: string
+          format: uuid
+        deletedAt:
+          type: string
+          format: date-time
+        deletedBy:
+          type: string
+          format: uuid
+
+    TaskAssigned:
+      type: object
+      properties:
+        taskId: 
+          type: string
+          format: uuid
+        assignedUserId:
+          type: string
+          format: uuid
+        assignedAt:
+          type: string
+          format: date-time

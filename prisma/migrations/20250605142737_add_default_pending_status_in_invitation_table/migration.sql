@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Invitation` MODIFY `status` ENUM('PENDING', 'ACCEPTED', 'EXPIRED') NOT NULL DEFAULT 'PENDING';

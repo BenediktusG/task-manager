@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+  MANAGER
+  SUPER_ADMIN
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+}
+
+model User {
+  id String @id @default(uuid())
+  username String @unique @db.VarChar(20)
+  email String @unique
+  password String
+
+  tenants Member[]
+  tasksCreated Task[]
+  assignedTasks TaskAssigment[]
+  refreshToken Token[]
+}
+
+model Tenant {
+  id String @id @default(uuid())
+  name String @unique
+  description String? @db.Text
+  createdAt DateTime @default(now())
+
+  members Member[]
+  tasks Task[]
+  invitations Invitation[]
+}
+
+model Task {
+  id String @id @default(uuid())
+  title String @db.VarChar(30)
+  description String? @db.Text
+  priority Int @default(5)
+  progress Int @default(0)
+  status TaskStatus @default(NOT_STARTED)
+  tenantId String
+  creatorId String
+  createdAt DateTime
+  updatedAt DateTime @updatedAt
+  due DateTime
+
+  assignedUsers TaskAssigment[]
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdBy User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+}
+
+model TaskAssigment {
+  id String @id @default(uuid())
+  taskId String
+  userId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, userId])
+}
+
+model Member {
+  id String @id @default(uuid())
+  userId String
+  tenantId String
+  role Role
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tenantId])
+}
+
+model Token {
+  id String @id @default(uuid())
+  token String @unique @db.VarChar(256)
+  userId String
+  valid Boolean @default(true)
+  expiresAt DateTime
+  usedAt DateTime?
+  createdAt DateTime @default(now())
+
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Invitation {
+  id String @id @default(uuid())
+  email String 
+  tenantId String
+  role Role
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  status InvitationStatus @default(PENDING)
+  acceptedAt DateTime?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}

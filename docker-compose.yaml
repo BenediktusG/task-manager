@@ -1,0 +1,13 @@
+services:
+  task-manager-mysql:
+    image: mysql:8.0
+    container_name: task-manager-mysql
+    env_file:
+    - .env
+    ports:
+      - 3307:3306
+    volumes:
+      - task-manager-mysql-data:/var/lib/mysql
+    
+volumes:
+  task-manager-mysql-data:

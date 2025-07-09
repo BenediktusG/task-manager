@@ -1,0 +1,2088 @@
+openapi: 3.0.3
+info: 
+  title: Task Manager
+  description: Multi-Tenant Task Manager
+  version: 1.0.0
+  contact:
+    name: Benediktus Gianto Jarod
+    email: benediktus.gianto.jarod@gmail.com
+servers:
+- url: https://localhost:3000/
+  description: Task Manager Hybrid API server
+
+paths: 
+  /auth/register:
+    post:
+      tags:
+      - Authentication
+      description: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+                - confirmationPassword
+              properties:
+                username:
+                  type: string
+                  minLength: 4
+                  maxLength: 20
+                  pattern: "^[a-zA-Z0-9_]+$"
+                  example: BenGJ
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                  maxLength: 128
+                  pattern: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&_]{8,128}$
+                confirmationPassword:
+                  type: string
+                  minLength: 8
+                  maxLength: 128
+      responses:
+        201:
+          description: Success register a new user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/successUserInformationResponse'
+        400:
+          description: Failed to create a new user due to an invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  $ref: '#/components/examples/validationError'
+        409:
+          description: Failed to create a new user due to unavailable username or email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                conflictError:
+                  $ref: '#/components/examples/conflictError'
+
+  /auth/login:
+    post:
+      tags:
+      - Authentication
+      description: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  minLength: 4
+                  maxLength: 20
+                  pattern: "^[a-zA-Z0-9_]+$"
+                  example: BenGJ
+                password:
+                  type: string
+                  minLength: 8
+                  maxLength: 128
+                  pattern: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&_]{8,128}$
+      responses:
+        200:
+          description: Success login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/successLoginOrRefreshResponses'
+        400:
+          description: Failed to login due to invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  $ref: '#/components/examples/validationError'
+        401:
+          description: Failed to login due to invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidCredentialsError:
+                  $ref: '#/components/examples/invalidCredentialsError' 
+                  
+
+  /auth/logout:
+    post:
+      tags:
+      - Authentication
+      description: User logout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string  
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjM0NTYiLCJ1c2VybmFtZSI6ImJrZWphcm90Iiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzExNzUyMDAwLCJleHAiOjE3MTE3NTYwMDB9.J9YMTXMzW
+      responses:
+        200:
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data: 
+                      message: Logout successful
+        400:
+          description: Failed to logout due to invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  $ref: '#/components/examples/validationError'
+        401:
+          description: Failed to logout due to invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+  /auth/me:
+    get:
+      tags:
+      - Authentication
+      description: Get current authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Success get current user information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/successUserInformationResponse'
+        401:
+          description: Failed to get current user information due to invalid or missing access token
+          content:
+            application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
+                examples:
+                  InvalidAccessTokenError:
+                    $ref: '#/components/examples/invalidAccessTokenError'
+                  AuthRequiredError:
+                    $ref: '#/components/examples/authRequiredError'
+    patch:
+      tags:
+      - Authentication
+      description: Update current authenticated user information
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  minLength: 4
+                  maxLength: 20
+                  pattern: "^[a-zA-Z0-9_]+$"
+                  example: BenGJUpdated
+                email:
+                  type: string
+                  format: email
+      responses:
+        200:
+          description: Success update current user information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/successUserInformationResponse'
+        400:
+          description: Failed to update current user information due to invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  $ref: '#/components/examples/validationError'
+        401:
+          description: Failed to update current user information due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        409:
+          description: Failed to update current user information due to unavailable username or email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                conflictError:
+                  $ref: '#/components/examples/conflictError'
+    delete:
+      tags: 
+      - Authentication
+      description: Delete current authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Success delete current authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data:
+                      message: Your account has been deleted successfully
+        401:
+          description: Failed to delete current authenticated user due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+  /auth/password:
+    patch:
+      tags:
+      - Authentication
+      description: Update current authenticated user password
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                oldPassword:
+                  type: string
+                  minLength: 8
+                  maxLength: 128
+                  pattern: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&_]{8,128}$
+                newPassword:
+                  type: string
+                  minLength: 8
+                  maxLength: 128
+                  pattern: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&_]{8,128}$
+                confirmationPassword:
+                  type: string
+                  minLength: 8 
+                  maxLength: 128
+      responses:
+        200:
+          description: Success update current user password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data: 
+                      message: Password updated successfully
+        400:
+          description: Failed to update current user password due to invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  $ref: '#/components/examples/validationError'
+        401:
+          description: Failed to update current user password due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+  /auth/refresh:
+    post:
+      tags: 
+      - Authentication
+      description: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string  
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjM0NTYiLCJ1c2VybmFtZSI6ImJrZWphcm90Iiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzExNzUyMDAwLCJleHAiOjE3MTE3NTYwMDB9.J9YMTXMzW
+      responses:
+        200:
+          description: Success refresh access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/successLoginOrRefreshResponses'
+        400:
+          description: Failed to refresh access token due to invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  $ref: '#/components/examples/validationError'
+        401:
+          description: Failed to refresh access token due to invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidRefreshTokenError:
+                  $ref: '#/components/examples/invalidRefreshTokenError'
+  /users/invitations:
+    get:
+      tags:
+      - User
+      description: Get all of the received tenant invitations
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Success get all of received tenant invitations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data: 
+                      - id: 02b9ad7d-34f5-4c95-b5d8-383cb4e62f1f 
+                        tenantId: a1ea13b4-f463-4409-bcc6-3e32db2929d3
+                        tenantName: 98d1e4a7-d1ce-4a4f-9cd9-7296c507dfb9
+                        role: ADMIN
+        401:
+          description: Failed to get all of received tenant invitations due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+
+  /users/invitations/{invitationId}:
+    get:
+      tags:
+      - User
+      description: Get a detailed information about an invitation
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/invitationId'
+      responses:
+        200:
+          description: Success get a detailed information about the invitation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data: 
+                      id: 3d2951f6-3f69-462c-a463-faf5d1bb84f2  
+                      email: user@mail.com
+                      tenantId: 3d2951f6-3f69-462c-a463-faf5d1bb89f1
+                      role: ADMIN
+                      createdAt: 2025-06-06T07:07:00Z
+                      expiresAt: 2025-05-27T00:00:00Z
+                      acceptedAt: 2025-06-10T07:07:00Z
+                      status: ACCEPTED
+        401:
+          description: Failed to get a detailed information about the invitation due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        404:
+          description: Failed to get a detailed information about the tenant invitation due to invalid tenant ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+  
+  /users/invitations/{invitationId}/accept:
+    post:
+      tags:
+      - User
+      description: accept the received tenant invitation
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/invitationId'
+      responses:
+        200:
+          description: Success to accept the invitation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data: 
+                      message: Success accept an invitation
+        401:
+          description: Failed to accept the invitation due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        404:
+          description: Failed to accept the invitation due to not found invitation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+  /tenants:
+    post:
+      tags:
+      - Tenant
+      description: Create a new tenant
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 4
+                  maxLength: 20
+                  example: MyTenant
+                description:
+                  type: string
+                  maxLength: 500
+      responses:
+        201:
+          description: Success create a new tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data:
+                      id: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+                      name: MyTenant
+        400:
+          description: Failed to create a new tenant due to invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  $ref: '#/components/examples/validationError'
+        401:
+          description: Failed to create a new tenant due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+                
+        409:
+          description: Failed to create a new tenant due to unavailable name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                conflictError:
+                  value:
+                    success: false
+                    error:
+                      code: TENANT_NAME_ALREADY_TAKEN
+                      message: Tenant name already taken
+    get:
+      tags:
+      - Tenant
+      description: Get all tenants the user is a member of
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Success get all tenants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data:
+                      tenants:
+                        - id: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+                          name: MyTenant
+                        - id: '3fa85f64-5717-4562-b3fc-2c963f66afa7'
+                          name: YourTenant 
+        401:
+          description: Failed to get all tenants due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+    
+  /tenants/{tenantId}:  
+    get:
+      tags:
+      - Tenant
+      description: Get a tenant by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+      responses:
+        200:
+          description: Success get tenant by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data:
+                      id: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+                      name: MyTenant
+                      description: Tenant for science final project
+                      createdAt: 2025-05-27T00:00:00
+        401:
+          description: Failed to get tenant by ID due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        404:
+          description: Failed to get tenant by ID due to not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+    put:
+      tags:
+      - Tenant
+      description: Update a tenant by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 4
+                  maxLength: 20
+                  example: MyTenantUpdated
+      responses:
+        200:
+          description: Success update tenant by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data:
+                      id: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+                      name: MyTenantUpdated
+        400:
+          description: Failed to update tenant by ID due to invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  $ref: '#/components/examples/validationError'
+        401:
+          description: Failed to update tenant by ID due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403: 
+          description: Failed to update tenant by ID due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to update tenant by ID due to not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+        409:
+          description: Failed to update tenant by ID due to unavailable name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ConflictError:
+                  $ref: '#/components/examples/conflictError'
+    delete:
+      tags:
+      - Tenant
+      description: Delete a tenant by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+      responses:
+        200:
+          description: Success delete tenant by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data: 
+                      message: Tenant deleted successfully
+        401:
+          description: Failed to delete tenant by ID due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403: 
+          description: Failed to delete tenant by ID due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to delete tenant by ID due to not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+  /tenants/{tenantId}/invite:
+    post:
+      tags:
+      - Tenant
+      description: Invite a user to a tenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                role:
+                  type: string
+                  enum:
+                    - admin
+                    - member
+                expiresAt:
+                  type: string
+                  format: date-time
+                  example: 2030-10-01T00:00:00Z
+      responses:
+          201:
+            description: Success invite a user to a tenant
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/SuccessResponse'
+                examples:
+                  SuccessResponse:
+                    value:
+                      success: true
+                      data: 
+                        id: '3fa85f64-5717-4562-b3fd-2c963f66afa6'
+                        email: 'user@mail.com'
+                        tenantId: '3fa85f64-5717-4562-b3fc-2c963f69afa6'
+                        role: 'admin'
+                        expiresAt: 2030-10-01T00:00:00Z
+          400:
+            description: Failed to invite a user due to invalid request body
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
+                examples:
+                  validationError:
+                    $ref: '#/components/examples/validationError'
+          401:
+            description: Failed to invite a user due to invalid or missing access token
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
+                examples:
+                  InvalidAccessTokenError:
+                    $ref: '#/components/examples/invalidAccessTokenError'
+                  AuthRequiredError:
+                    $ref: '#/components/examples/authRequiredError'
+          403: 
+            description: Failed to invite a user due to forbidden access
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
+                examples:
+                  AuthorizationError:
+                    $ref: '#/components/examples/authorizationError'
+          404:
+            description: Failed to invite a user due to not found
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
+                examples:
+                  NotFoundError:
+                    $ref: '#/components/examples/notFoundError'
+          409:
+            description: Failed to invite a user due to the user already become the member of this tenant
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResponse'
+                examples:
+                  ConflictError:
+                    value:
+                      success: false
+                      error:
+                        code: USER_ALREADY_MEMBER
+                        message: User already a member of this tenant
+  /tenants/{tenantId}/invitations:
+    get:
+      tags:
+      - Tenant
+      description: Get tenant invitations
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Success get all tenant invitations
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data:
+                    - email: user@mail.com
+                      role: MEMBER
+                      status: PENDING
+                      createdAt: 2025-06-06T07:07:00Z
+                      expiresAt: 2025-06-12T00:00:00Z
+        401:
+          description: Failed to get all of tenant invitations due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to get all of the tenant invitations due to forbideen access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to get all of the tenant invitations due to invalid tenant id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+  /tenants/{tenantId}/invitations/{invitationId}:
+    get:
+      tags:
+      - Tenant
+      description: get a detailed information about an invitation
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/invitationId'
+      responses:
+        200:
+          description: Success get a detailed information about the invitation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data: 
+                      id: 3d2951f6-3f69-462c-a463-faf5d1bb84f2  
+                      email: user@mail.com
+                      tenantId: 3d2951f6-3f69-462c-a463-faf5d1bb89f1
+                      role: ADMIN
+                      createdAt: 2025-06-06T07:07:00Z
+                      expiresAt: 2025-05-27T00:00:00Z
+                      acceptedAt: 2025-06-10T07:07:00Z
+                      status: ACCEPTED
+        401:
+          description: Failed to get a detailed information about the invitation due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to get a detailed information about the invitation due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to get a detailed information about the invitation due to not found tenant or invitation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+
+    delete:
+      tags:
+      - Tenant
+      description: delete a tenant invitation
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/invitationId'
+      responses:
+        200:
+          description: Success delete the tenant invitation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponses:
+                  value:
+                    success: true
+                    data:
+                      message: successfully deleted an invitation
+        401:
+          description: Failed to delete the invitation due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to delete the tenant invitation due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to delete the tenant invitation due to not found tenant or invitation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+  
+  /tenats/{tenantId}/members:
+    get:
+      tags:
+      - Tenant
+      description: Get all members of a tenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+      responses:
+        200:
+          description: Success get all members of a tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponses:
+                  value:
+                    success: true
+                    data:
+                    - id: 9a87fe75-8cda-4135-bc15-bedcffd1030c
+                      username: Budi123
+                      email: budi@mail.com
+                      role: admin
+                    - id: 9a87fe75-8cda-4135-bc15-bedcffd1030d
+                      username: Joko345
+                      email: joko@mail.com
+                      role: member
+        401:
+          description: Failed to get all members of a tenant due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to get all members of a tenant due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to get all members of a tenant due to not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+  /tenants/{tenantId}/members/{userId}:
+    patch:
+      tags:
+      - Tenant
+      description: modify a role of the member
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/userId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum:
+                  - MEMBER
+                  - ADMIN
+                  - MANAGER
+                  - SUPER_ADMIN
+      responses:
+        200:
+          description: Success modify the role of an user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponses:
+                  value:
+                    success: true
+                    data:
+                      id: 9a87fe75-8cda-4135-bc15-bedcffd1030c
+                      username: Budi123
+                      email: budi@mail.com
+                      role: admin
+        401:
+          description: Failed to modify the role due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to modify the role due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to modify the role due to not found user or tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+    delete:
+      tags:
+      - Tenant
+      description: Remove an user from the tenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/userId'
+      responses:
+        200:
+          description: Success delete the user from this tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponses:
+                  value:
+                    success: true
+                    data:
+                      message: Successfully deleted the user from the tenant
+        401:
+          description: Failed to delete the user due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to delete the user due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to delete the user due to not found user or tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+  /tenants/{tenantId}/members/me:
+    delete:
+      tags:
+      - Tenant
+      description: Leave from the tenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+      responses:
+        200:
+          description: Successfully leave the tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponses:
+                  value:
+                    success: true
+                    data:
+                      message: Successfully leave the tenant
+        401:
+          description: Failed to leave the tenant to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to leave the tenant due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to leave the tenant due to not found tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'      
+  /tenants/{tenantId}/join:
+    post:
+      tags:
+      - Tenant
+      description: Join a tenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: I want to join this tenant because I am working on a project with this team.
+      responses:
+        200:
+          description: Success sent join request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data: 
+                      requestId: d3b07384-d9a5-4f7f-97a5-d4e85f06c7b7
+                      message: Join request sent successfully
+        401:
+          description: Failed to sent join request due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        404:
+          description: Failed to sent join request due to not found tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'        
+        409:
+          description: Failed to sent join request due to user already became a member of this tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ConflictError: 
+                  value:
+                    success: false
+                    error:
+                      code: USER_ALREADY_MEMBER
+                      message: User already a member of this tenant
+  /tenants/{tenantId}/join-requests:
+    get:
+      tags:
+      - Tenant
+      description: Get all join requests of a tenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+      responses:
+        200:
+          description: Success get all join requests of a tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data:
+                      requests:
+                      - requestId: 5e979f1e-a629-4026-94f7-77137efad7ed
+                        Requestmessage: I want to join this tenant because I am working on a project with this team.
+                        status: pending
+                        user:
+                          userId: baf19f6d-cc60-406c-bd06-c0280c042f12
+                          email: jonhD@mail.com
+                          fullName: Jonh Doe
+                      - requestId: 810a8535-a48b-4670-acfc-66b985c473eb
+                        requestMessage: I want to join this tenant because I am really interest with this project
+                        responseMessage: Thank you for your interest, but we only accept our backend team in this tenant
+                        status: rejected
+                        user:
+                          userId: 2723cb28-1853-495b-8775-3510c5050865
+                          email: RickRolll@yahoo.com
+                          fullName: Rick San Roll
+        401:
+          description: Failed to get all join requests of a tenant due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to get all join requests of a tenant due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:   
+          description: Failed to get all join requests of a tenant due to not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+  
+  /tenants/{tenantId}/join-requests/{requestId}:
+    patch:
+      tags:
+      - Tenant
+      description: Accept or reject a join request
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/requestId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - accepted
+                    - rejected
+                message:
+                  type: string
+                  example: Welcome to the team!
+      responses:
+        200:
+          description: Success accept or reject a join request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                AcceptedScenario:
+                  $ref: '#/components/examples/acceptedScenario'
+                RejectedScenario:
+                  $ref: '#/components/examples/rejectedScenario'
+        400:
+          description: Failed to accept or reject a join request due to invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  $ref: '#/components/examples/validationError'
+        401:
+          description: Failed to accept or reject a join request due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to accept or reject a join request due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to accept or reject a join request due to not found request or tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'   
+    get:
+      tags:
+      - Tenant
+      description: Get a detailed information of a join request
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/requestId'
+      responses:
+        200:
+          description: Success get a detailed information of a join request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                AcceptedScenario:
+                  $ref: '#/components/examples/acceptedScenario'
+                RejectedScenario:
+                  $ref: '#/components/examples/rejectedScenario'
+                PendingScenario:
+                  value:
+                    success: true
+                    data:
+                      status: pending
+                      requestMessage: Hi i'm your project manager, i need to join this tenant to manage this project
+                      tenantId: b702d1e2-1727-4268-8854-e995f2cc50c4
+                      userId: 0febb104-7d21-4e61-9f5c-c7f4456e83a9
+        401:
+          description: Failed to get a detailed information of a join request due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to get a detailed information of a join request due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to get a detailed information of a join request due to not found request or tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+  /tenants/{tenantId}/tasks:
+    post: 
+      tags:
+      - Task
+      description: Create a new task
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostTaskRequestBody"
+      responses:
+        201:
+          description: Success create a new task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/getTaskSuccessResponse'
+        400:
+          description: Failed to create a new task due to invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  $ref: '#/components/examples/validationError'
+        401:
+          description: Failed to create a new task due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to create a new task due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to create a new task due to not found tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+    get:
+      tags:
+      - Task
+      description: Get all tasks of a tenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+      responses:
+        200: 
+          description: Success get all tasks of a tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data:
+                      tasks:
+                      - id: 90105556-82a0-4ca0-8b88-3c91b6e04c04
+                        title: Monthly Report
+                        priority: 2
+                        progress: 27
+                      - id: 7ed0120c-bca0-47f1-982d-e43d9a774dcd
+                        title: Weekly Report
+                        priority: 3
+                        progress: 70
+        401: 
+          description: Failed to get all tasks of a tenant due to invalid or missing access token
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to get all tasks of a tenant due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+  /tenants/{tenantId}/tasks/{taskId}:
+    get:
+      tags:
+      - Task
+      description: Get a task by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        200:
+          description: Success get a task by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/getTaskSuccessResponse'
+        401:
+          description: Failed to get a task by ID due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to get a task by ID due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to get a task by ID due to not found tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError' 
+    put:
+      tags:
+      - Task
+      description: Update a task by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/taskId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostTaskRequestBody'
+      responses:
+        200:
+          description: Success update a task by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  $ref: '#/components/examples/getTaskSuccessResponse'
+        400:
+          description: Failed to update a task due to invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  $ref: '#/components/examples/validationError'
+        401:
+          description: Failed to update a task due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to update a task due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to update a task due to notfound task or tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+    delete:
+      tags:
+      - Task
+      description: delete a task by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/tenantId'
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        200:
+          description: Success delete a task by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                SuccessResponse:
+                  value:
+                    success: true
+                    data:
+                      message: Task deleted successfully
+        401:
+          description: Failed to delete a task due to invalid or missing access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidAccessTokenError:
+                  $ref: '#/components/examples/invalidAccessTokenError'
+                AuthRequiredError:
+                  $ref: '#/components/examples/authRequiredError'
+        403:
+          description: Failed to delete a task due to forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                AuthorizationError:
+                  $ref: '#/components/examples/authorizationError'
+        404:
+          description: Failed to delete a task due to not found task or tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFoundError:
+                  $ref: '#/components/examples/notFoundError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error: 
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+    PostTaskRequestBody:
+      type: object
+      required:
+        - title
+        - description
+        - due
+        - assignedTo
+      properties:
+        title:
+          type: string
+          minLength: 4
+          maxLength: 30
+          example: Monthly Report
+        description:
+          type: string
+          minLength: 4
+          maxLength: 1000
+          example: This is a monthly report for the project progress.
+        priority:
+          type: integer
+          minimum: 1
+          maximum: 5
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 50
+        status:
+          type: string
+          enum:
+          - todo
+          - inProgress 
+          - done
+        assignedTo:
+          type: array
+          items:
+            type: string
+            format: uuid
+        due:
+          type: string
+          format: date-time
+
+  examples:
+    successUserInformationResponse:
+      value:
+        success: true
+        data:
+          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+          username: 'Budi123'
+          email: 'budi@mail.com'
+    successLoginOrRefreshResponses:
+      value:
+        success: true
+        data:
+          accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjM0NTYiLCJ1c2VybmFtZSI6ImJrZWphcm90Iiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjk0NjM2MDAwLCJleHAiOjE2OTQ2NzIwMDB9.hYbX5d2Fy6Q2I8B4sKJPTcfL9skKP1FvU4LQvAKbqCE
+          refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjM0NTYiLCJ1c2VybmFtZSI6ImJrZWphcm90Iiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzExNzUyMDAwLCJleHAiOjE3MTE3NTYwMDB9.J9YMTXMzW
+    validationError:
+      value:
+        success: false
+        error:
+          code: VALIDATION_ERROR
+          message: The request contains invalid fields
+          details:
+          - field: <FIELD_NAME>
+            message: <SPECIFIC_ERROR_MESSAGE>
+    conflictError:
+      value:
+        success: false
+        error:
+          code: USERNAME_ALREADY_TAKEN
+          message: Username already taken 
+    authorizationError:
+      value:
+        success: false
+        error:
+          code: UNAUTHORIZED_ACTION
+          message: You are not authorized to access this resource
+    notFoundError:
+      value:
+        success: false
+        error:
+          code: NOT_FOUND
+          message: The requested resource was not found
+    authRequiredError:
+      value:
+        success: false
+        error: 
+          code: AUTH_REQUIRED
+          message: You have to authenticated to access this resource
+    
+    invalidCredentialsError:
+      value:
+        success: false
+        error:
+          code: INVALID_CREDENTIALS
+          message: Invalid username or password
+    missingAccessTokenError:
+      value:
+        success: false
+        error:
+          code: MISSING_ACCESS_TOKEN
+          message: Access token is missing
+    invalidAccessTokenError:
+      value:
+        success: false
+        error:
+          code: INVALID_ACCESS_TOKEN
+          message: Access token is invalid
+    expiredAccessTokenError:
+      value:
+        success: false
+        error:
+          code: EXPIRED_ACCESS_TOKEN
+          message: Authentication token has expired
+    blacklistedAccessTokenError:
+      value:
+        success: false
+        error:
+          code: BLACKLISTED_ACCESS_TOKEN
+          message: Authentication token is blacklisted
+    invalidRefreshTokenError:
+      value:
+        success: false
+        error:
+          code: INVALID_REFRESH_TOKEN
+          message: Refresh token is invalid
+    expiredRefreshTokenError:
+      value:
+        success: false
+        error:
+          code: EXPIRED_REFRESH_TOKEN
+          message: Refresh token has expired
+    acceptedScenario:
+      value:
+        success: true
+        data:
+          status: accepted
+          requestMessage: I want to join this tenant because I am working on a project with this team.
+          responseMessage: Welcome to the team!
+          tenantId: b702d1e2-1727-4268-8854-e995f2cc50c4
+          userId: 0febb104-7d21-4e61-9f5c-c7f4456e83a9
+          handledBy: 5797099c-58ea-440e-bee8-1624301239da
+    rejectedScenario:
+      value:
+        success: true
+        data:
+          status: rejected
+          requestMessage: I want to join this tenant because I am really interest with this project
+          responseMessage: Thank you for your interest, but we only accept our backend team in this tenant
+          tenantId: b702d1e2-1727-4268-8854-e995f2cc50c4
+          userId: 0febb104-7d21-4e61-9f5c-c7f4456e83a9
+          handledBy: 5797099c-58ea-440e-bee8-1624301239da
+    getTaskSuccessResponse:
+      value:
+        success: true
+        data:
+          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+          title: Monthly Report
+          description: This is a monthly report for the project progress.
+          priority: 2
+          progress: 50
+          status: todo
+          tenantId: ce3d5314-a325-4fae-9638-1926cad8b793
+          assignedTo:
+            - userId: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+              username: Budi123
+              email: budi@mail.com
+            - userId: '3fa85f64-5717-4562-b3fc-2c963f66afa7'
+              username: Djoko381
+              email: Djoko@yahoo.com
+          createdBy: e455219f-32e4-44d6-b324-7954b5d71c17
+          createdAt: 2023-10-01T00:00:00Z
+          updatedAt: 2023-11-02T01:00:00Z
+          due: 2023-10-01T00:00:00Z
+
+  parameters:
+    tenantId:
+      name: tenantId
+      in: path
+      required: true
+      description: The ID of the tenant
+      schema:
+        type: string
+        example: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        format: uuid
+    requestId:
+      name: requestId
+      in: path
+      required: true
+      description: The ID of the join request
+      schema:
+        type: string
+        format: uuid
+    taskId:
+      name: taskId
+      in: path
+      required: true
+      description: the ID of the task
+      schema:
+        type: string
+        format: uuid
+    invitationId:
+      name: invitationId
+      in: path
+      required: true
+      description: the ID of an invitation
+      schema:
+        type: string
+        format: uuid
+    userId:
+      name: userId
+      in: path
+      required: true
+      description: the ID of an user
+      schema:
+        type: string
+        format: uuid
