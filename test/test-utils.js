@@ -92,7 +92,7 @@ const createTenant = async (key) => {
 };
 
 const joinTenant = async (userId, tenantId, role='MEMBER') => {
-    await prismaClient.member.create({
+    return prismaClient.member.create({
         data: {
             userId: userId,
             tenantId: tenantId,

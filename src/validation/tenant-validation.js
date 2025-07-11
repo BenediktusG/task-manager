@@ -18,7 +18,12 @@ const inviteUserValidation = Joi.object({
     expiresAt: Joi.date().greater('now').required(),
 });
 
+const changeMemberRoleValidation = Joi.object({
+    role: Joi.string().valid(...Object.values(Roles)).required(),
+});
+
 export {
     createTenantValidation,
     inviteUserValidation,
+    changeMemberRoleValidation,
 };

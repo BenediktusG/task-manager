@@ -17,7 +17,10 @@ export default defineConfig([
     plugins: {
       jest: pluginJest,
     },
-    extends: ['plugin:jest/recommended', 'plugin:jest/style'],
+    rules: {
+      ...pluginJest.configs.recommended.rules,
+      ...pluginJest.configs.style.rules,
+    },
   },
   js.configs.recommended,
   prettier,

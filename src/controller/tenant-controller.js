@@ -122,6 +122,18 @@ const deleteInvitation = async (req, res, next) => {
     }
 };
 
+const editMemberRole = async (req, res, next) => {
+    try {
+        const result = await tenantService.editMemberRole(req.body, req.params.tenantId, req.params.userId, req.user);
+        res.status(200).json({
+            success: true,
+            data: result,
+        });
+    } catch (e) {
+        next(e);
+    }
+};
+
 export default {
     create,
     getAssociatedTenants,
@@ -133,4 +145,5 @@ export default {
     getAllInvitations,
     getSpecificInvitationById,
     deleteInvitation,
+    editMemberRole,
 };

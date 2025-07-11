@@ -4,7 +4,7 @@ import { AuthorizationError } from "../error/authorization-error.js";
 import { ConflictError } from "../error/conflict-error.js";
 import { NotFoundError } from "../error/not-found-error.js";
 import { extractMembers, extractTenants } from "../utils/tenantUtils.js";
-import { createTenantValidation, inviteUserValidation } from "../validation/tenant-validation.js"
+import { changeMemberRoleValidation, createTenantValidation, inviteUserValidation } from "../validation/tenant-validation.js"
 import { validate } from "../validation/validation.js"
 
 const create = async (request, user) => {
@@ -448,6 +448,77 @@ const deleteInvitation = async (tenantId, invitationId, user) => {
     });
 };
 
+const editMemberRole = async (request, tenantId, targetUserId, user) => {
+    const { role } = validate(changeMemberRoleValidation, request);
+    const tenant = await prismaClient.tenant.findUnique({
+        where: {
+            id: tenantId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!tenant) {
+        throw new NotFoundError('Failed to do the action because of invalid Tenant ID', 'NOT_FOUND_TENANT');
+    }
+
+    const member = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: user.id,
+                tenantId: tenantId,
+            }
+        },
+        select: {
+            role: true,
+        },
+    });
+    if (!member) {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    if (member.role !== 'ADMIN' && member.role !== 'SUPER_ADMIN') {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    const targetMemberData = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: targetUserId,
+                tenantId: tenantId,
+            },
+        },
+        select: {
+            id: true,
+            role: true,
+        },
+    });
+    if (!targetMemberData) {
+        throw new NotFoundError('Failed to do the action because of invalid user id', 'NOT_FOUND_USER');
+    }
+    if ((targetMemberData.role === 'SUPER_ADMIN' || role === 'SUPER_ADMIN') && member.role === 'ADMIN') {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+    const result = await prismaClient.member.update({
+        where: {
+            id: targetMemberData.id,
+        },
+        data: {
+            role: role,
+        },
+        include: {
+            user: true,
+        }
+    });
+    return {
+        id: result.id,
+        username: result.user.username,
+        email: result.user.email,
+        role: result.role,
+    };
+};
+
 export default {
     create,
     getAssociatedTenants,
@@ -459,4 +530,5 @@ export default {
     getAllInvitations,
     getSpecificInvitationById,
     deleteInvitation,
+    editMemberRole,
 };
