@@ -14,7 +14,7 @@ export const authMiddleware = async (req, res, next) => {
         // logger.debug(verifyToken(token));
         const information = verifyToken(token);
         if (!information) {
-            next(new AuthenticationError('Your token is invalid or expired', 'INVALID_ACCESS_TOKEN'));
+            return next(new AuthenticationError('Your token is invalid or expired', 'INVALID_ACCESS_TOKEN'));
         }
         const { userId } = information
         // logger.debug(userId);

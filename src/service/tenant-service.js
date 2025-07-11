@@ -287,6 +287,112 @@ const getAllMembers = async (tenantId, user) => {
     return extractMembers(result);
 };
 
+const getAllInvitations = async (tenantId, user) => {
+    const tenant = await prismaClient.tenant.findUnique({
+        where: {
+            id: tenantId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!tenant) {
+        throw new NotFoundError('Failed to do the action because of invalid Tenant ID', 'NOT_FOUND_TENANT');
+    }
+
+    const member = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: user.id,
+                tenantId: tenantId,
+            }
+        },
+        select: {
+            role: true,
+        },
+    });
+    if (!member) {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    if (member.role !== 'ADMIN' && member.role !== 'SUPER_ADMIN') {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    const result = await prismaClient.invitation.findMany({
+        where: {
+            tenantId: tenantId,
+        },
+        select: {
+            id: true,
+            email: true,
+            role: true,
+            status: true,
+            createdAt: true,
+            expiresAt: true,
+            acceptedAt: true,
+        },
+    });
+
+    return result;
+};
+
+const getSpecificInvitationById = async (tenantId, invitationId, user) => {
+    const tenant = await prismaClient.tenant.findUnique({
+        where: {
+            id: tenantId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!tenant) {
+        throw new NotFoundError('Failed to do the action because of invalid Tenant ID', 'NOT_FOUND_TENANT');
+    }
+
+    const member = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: user.id,
+                tenantId: tenantId,
+            }
+        },
+        select: {
+            role: true,
+        },
+    });
+    if (!member) {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    if (member.role !== 'ADMIN' && member.role !== 'SUPER_ADMIN') {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    const invitation = await prismaClient.invitation.findUnique({
+        where: {
+            id: invitationId,
+        },
+        select: {
+            id: true,
+            email: true,
+            tenantId: true,
+            role: true,
+            createdAt: true,
+            expiresAt: true,
+            acceptedAt: true,
+            status: true,
+        },
+    });
+
+    if (!invitation) {
+        throw new NotFoundError('Failed to do the action because of invitation id is invalid', 'NOT_FOUND_INVITATION');
+    }
+    return invitation;
+};
+
 export default {
     create,
     getAssociatedTenants,
@@ -295,4 +401,6 @@ export default {
     deleteTenant,
     inviteUser,
     getAllMembers,
+    getAllInvitations,
+    getSpecificInvitationById,
 };

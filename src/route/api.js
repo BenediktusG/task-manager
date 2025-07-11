@@ -20,3 +20,5 @@ userRouter.put('/tenants/:tenantId', tenantController.edit);
 userRouter.delete('/tenants/:tenantId', tenantController.deleteTenant);
 userRouter.post('/tenants/:tenantId/invite', tenantController.inviteUser);
 userRouter.get('/tenants/:tenantId/members', tenantController.getAllMembers);
+userRouter.get('/tenants/:tenantId/invitations', tenantController.getAllInvitations);
+userRouter.get('/tenants/:tenantId/invitations/:invitationId', tenantController.getSpecificInvitationById);

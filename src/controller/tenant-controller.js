@@ -84,6 +84,30 @@ const getAllMembers = async (req, res, next) => {
     }
 };
 
+const getAllInvitations = async (req, res, next) => {
+    try {
+        const result = await tenantService.getAllInvitations(req.params.tenantId, req.user);
+        res.status(200).json({
+            success: true,
+            data: result,
+        });
+    } catch (e) {
+        next(e);
+    }
+};
+
+const getSpecificInvitationById = async (req, res, next) => {
+    try {
+        const result = await tenantService.getSpecificInvitationById(req.params.tenantId, req.params.invitationId, req.user);
+        res.status(200).json({
+            success: true,
+            data: result,
+        });
+    } catch (e) {
+        next(e);
+    }
+};
+
 export default {
     create,
     getAssociatedTenants,
@@ -92,4 +116,6 @@ export default {
     deleteTenant,
     inviteUser,
     getAllMembers,
+    getAllInvitations,
+    getSpecificInvitationById,
 };

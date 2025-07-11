@@ -924,11 +924,13 @@ paths:
                   value:
                     success: true
                     data:
-                    - email: user@mail.com
+                    - id: 3d2951f6-3f69-462c-a463-faf5d1bb84f9
+                      email: user@mail.com
                       role: MEMBER
                       status: PENDING
                       createdAt: 2025-06-06T07:07:00Z
                       expiresAt: 2025-06-12T00:00:00Z
+                      acceptedAt: 2025-06-10T00:00:05Z
         401:
           description: Failed to get all of tenant invitations due to invalid or missing access token
           content:

@@ -118,7 +118,25 @@ const cleanUserData = (user) => {
     delete user.password;
     delete user.accessToken;
     delete user.refreshToken;
-}
+};
+
+const createInvitation = async (tenantId, key, role='MEMBER',) => {
+    const user = generateUserInformation(key);
+    const invitation = await prismaClient.invitation.create({
+        data: {
+            email: user.email,
+            tenantId: tenantId,
+            role: role,
+            expiresAt: new Date(new Date() + 14*24*60*60*1000),
+        },
+    });
+    invitation.expiresAt = invitation.expiresAt.toISOString();
+    if (invitation.acceptedAt) {
+        invitation.acceptedAt = invitation.acceptedAt.toISOString();
+    }
+    invitation.createdAt = invitation.createdAt.toISOString();
+    return invitation;
+};
 
 export {
     generateKey,
@@ -133,4 +151,5 @@ export {
     joinTenant,
     checkTenant,
     cleanUserData,
+    createInvitation,
 };
