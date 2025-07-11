@@ -108,6 +108,20 @@ const getSpecificInvitationById = async (req, res, next) => {
     }
 };
 
+const deleteInvitation = async (req, res, next) => {
+    try {
+        await tenantService.deleteInvitation(req.params.tenantId, req.params.invitationId, req.user);
+        res.status(200).json({
+            success: true,
+            data: {
+                message: "successfully deleted an invitation",
+            },
+        });
+    } catch (e) {
+        next(e);
+    }
+};
+
 export default {
     create,
     getAssociatedTenants,
@@ -118,4 +132,5 @@ export default {
     getAllMembers,
     getAllInvitations,
     getSpecificInvitationById,
+    deleteInvitation,
 };

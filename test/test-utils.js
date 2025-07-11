@@ -138,6 +138,22 @@ const createInvitation = async (tenantId, key, role='MEMBER',) => {
     return invitation;
 };
 
+const checkInvitation = async (invitationId) => {
+    const result = await prismaClient.invitation.findUnique({
+        where: {
+            id: invitationId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!result) {
+        return false;
+    }
+    return true;
+};
+
 export {
     generateKey,
     removeAllUsers,
@@ -152,4 +168,5 @@ export {
     checkTenant,
     cleanUserData,
     createInvitation,
+    checkInvitation,
 };

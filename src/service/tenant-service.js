@@ -374,6 +374,7 @@ const getSpecificInvitationById = async (tenantId, invitationId, user) => {
     const invitation = await prismaClient.invitation.findUnique({
         where: {
             id: invitationId,
+            tenantId: tenantId,
         },
         select: {
             id: true,
@@ -393,6 +394,60 @@ const getSpecificInvitationById = async (tenantId, invitationId, user) => {
     return invitation;
 };
 
+const deleteInvitation = async (tenantId, invitationId, user) => {
+    const tenant = await prismaClient.tenant.findUnique({
+        where: {
+            id: tenantId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!tenant) {
+        throw new NotFoundError('Failed to do the action because of invalid Tenant ID', 'NOT_FOUND_TENANT');
+    }
+
+    const member = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: user.id,
+                tenantId: tenantId,
+            }
+        },
+        select: {
+            role: true,
+        },
+    });
+    if (!member) {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    if (member.role !== 'ADMIN' && member.role !== 'SUPER_ADMIN') {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    const invitation = await prismaClient.invitation.findUnique({
+        where: {
+            id: invitationId,
+            tenantId: tenantId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!invitation) {
+        throw new NotFoundError('Failed to do the action because of invalid invitation id', 'NOT_FOUND_INVITATION');
+    }
+
+    await prismaClient.invitation.delete({
+        where: {
+            id: invitationId,
+        },
+    });
+};
+
 export default {
     create,
     getAssociatedTenants,
@@ -403,4 +458,5 @@ export default {
     getAllMembers,
     getAllInvitations,
     getSpecificInvitationById,
+    deleteInvitation,
 };

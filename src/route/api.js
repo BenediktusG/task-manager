@@ -22,3 +22,4 @@ userRouter.post('/tenants/:tenantId/invite', tenantController.inviteUser);
 userRouter.get('/tenants/:tenantId/members', tenantController.getAllMembers);
 userRouter.get('/tenants/:tenantId/invitations', tenantController.getAllInvitations);
 userRouter.get('/tenants/:tenantId/invitations/:invitationId', tenantController.getSpecificInvitationById);
+userRouter.delete('/tenants/:tenantId/invitations/:invitationId', tenantController.deleteInvitation);
