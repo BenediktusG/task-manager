@@ -113,7 +113,21 @@ const getInvitationById = async (req, res, next) => {
     } catch (e) {
         next(e);
     }
-}
+};
+
+const acceptInvitation = async (req, res, next) => {
+    try {
+        await userService.acceptInvitation(req.params.invitationId, req.user);
+        res.status(200).json({
+            success: true,
+            data: {
+                message: 'Success accept an invitation',
+            },
+        });
+    } catch (e) {
+        next(e);
+    }
+};
 
 export default {
     register,
@@ -126,4 +140,5 @@ export default {
     changePassword,
     getAllInvitations,
     getInvitationById,
+    acceptInvitation,
 };

@@ -13,6 +13,7 @@ userRouter.delete('/auth/me', userController.deleteUser);
 userRouter.patch('/auth/password', userController.changePassword);
 userRouter.get('/users/invitations', userController.getAllInvitations);
 userRouter.get('/users/invitations/:invitationId', userController.getInvitationById);
+userRouter.post('/users/invitations/:invitationId/accept', userController.acceptInvitation);
 
 // Tenant API
 userRouter.post('/tenants', tenantController.create);

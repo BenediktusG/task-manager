@@ -258,6 +258,35 @@ const getInvitationById = async (invitationId, user) => {
     return invitation;
 };
 
+const acceptInvitation = async (invitationId, user) => {
+    try {
+        const invitation = await prismaClient.invitation.update({
+            where: {
+                id: invitationId,
+                email: user.email,
+            },
+            data: {
+                status: 'ACCEPTED',
+                acceptedAt: new Date(),
+            },
+            select: {
+                id: true,
+                tenantId: true,
+                role: true,
+            },
+        });
+        await prismaClient.member.create({
+            data: {
+                userId: user.id,
+                tenantId: invitation.tenantId,
+                role: invitation.role,
+            },
+        });
+    } catch {
+        throw new NotFoundError('Failed to get the invitation information because of invalid invitation id', 'NOT_FOUND_INVITATION');
+    }
+};
+
 export default {
     register,
     login,
@@ -269,4 +298,5 @@ export default {
     changePassword,
     getAllInvitations,
     getInvitationById,
+    acceptInvitation,
 };

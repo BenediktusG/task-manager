@@ -1,5 +1,5 @@
 import supertest from "supertest";
-import { checkRefreshToken, createInvitationUsingEmail, createTenant, createUser, generateKey, generateUserInformation, removeAllData, removeAllUsers } from "./test-utils.js";
+import { checkMember, checkRefreshToken, createInvitationUsingEmail, createTenant, createUser, generateKey, generateUserInformation, removeAllData, removeAllUsers } from "./test-utils.js";
 import { web } from "../src/application/web.js";
 import { logger } from "../src/application/logging.js";
 
@@ -888,6 +888,88 @@ describe('GET /users/invitations/:invitationId', () => {
         const user = await createUser(key);
         const result = await supertest(web)
             .get('/users/invitations/invalid-invitation-id')
+            .set('Authorization', `Bearer ${user.accessToken}`);
+        logger.debug(result.body);
+        expect(result.status).toBe(404);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'NOT_FOUND_INVITATION',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+});
+
+describe('POST /users/invitations/:invitationId/accept', () => {
+    let key;
+    beforeEach(() => {
+        key = generateKey();    
+    });
+    afterEach(async () => {
+        await removeAllData(key);
+    });
+    
+    it('should return 200 ok when successfully accept the tenant invitation', async () => {
+        const user = await createUser(key);
+        const tenant = await createTenant(key);
+        const invitation = await createInvitationUsingEmail(tenant.id, user.email);
+        
+        const result = await supertest(web)
+            .post(`/users/invitations/${invitation.id}/accept`)
+            .set('Authorization', `Bearer ${user.accessToken}`);
+
+        expect(result.status).toBe(200);
+        expect(result.body).toEqual({
+            success: true,
+            data: {
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.data.message.length).toBeGreaterThan(0);
+        expect(await checkMember(user.id, tenant.id)).toBe(true);
+    });
+
+    it('should return 401 unauthorized when requested by an unauthenticated user', async () => {
+        const user = await createUser(key);
+        const tenant = await createTenant(key);
+        const invitation = await createInvitationUsingEmail(tenant.id, user.email);
+        const result = await supertest(web)
+            .post(`/users/invitations/${invitation.id}/accept`);
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'AUTH_REQUIRED',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 401 unauthorized when access token is invalid', async () => {
+        const user = await createUser(key);
+        const tenant = await createTenant(key);
+        const invitation = await createInvitationUsingEmail(tenant.id, user.email);
+        const result = await supertest(web)
+            .post(`/users/invitations/${invitation.id}/accept`)
+            .set('Authorization', 'Bearer invalid-access-token');
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'INVALID_ACCESS_TOKEN',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 404 not found when invitation id is invalid', async () => {
+        const user = await createUser(key);
+        const result = await supertest(web)
+            .post('/users/invitations/invalid-invitation-id/accept')
             .set('Authorization', `Bearer ${user.accessToken}`);
         logger.debug(result.body);
         expect(result.status).toBe(404);
