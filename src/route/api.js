@@ -11,6 +11,7 @@ userRouter.get('/auth/me', userController.getCurrentUserInformation);
 userRouter.patch('/auth/me', userController.editCurrentUserInformation);
 userRouter.delete('/auth/me', userController.deleteUser);
 userRouter.patch('/auth/password', userController.changePassword);
+userRouter.get('/users/invitations', userController.getAllInvitations);
 
 // Tenant API
 userRouter.post('/tenants', tenantController.create);

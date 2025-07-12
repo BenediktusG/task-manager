@@ -219,6 +219,31 @@ const changePassword = async (request, user) => {
     });
 };
 
+const getAllInvitations = async (user) => {
+    const invitations = await prismaClient.invitation.findMany({
+        where: {
+            email: user.email,
+        },
+        select: {
+            id: true,
+            tenant: {
+                select: {
+                    name: true,
+                }
+            },
+            tenantId: true,
+            role: true,       
+        },
+    });
+
+    invitations.map((data) => {
+        data.tenantName = data.tenant.name;
+        delete data.tenant;
+        return data;
+    });
+    return invitations;
+}
+
 export default {
     register,
     login,
@@ -228,4 +253,5 @@ export default {
     editCurrentUserInformation,
     deleteUser,
     changePassword,
+    getAllInvitations,
 };

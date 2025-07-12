@@ -1,5 +1,5 @@
 import supertest from "supertest";
-import { checkRefreshToken, createUser, generateKey, generateUserInformation, removeAllUsers } from "./test-utils.js";
+import { checkRefreshToken, createInvitationUsingEmail, createTenant, createUser, generateKey, generateUserInformation, removeAllData, removeAllUsers } from "./test-utils.js";
 import { web } from "../src/application/web.js";
 import { logger } from "../src/application/logging.js";
 
@@ -754,3 +754,73 @@ describe('PATCH /auth/password', () => {
         expect(result.body.error.message.length).toBeGreaterThan(0);
     });
 });
+
+describe('GET /users/invitations', () => {
+    let key;
+    beforeEach(() => {
+        key = generateKey();    
+    });
+    afterEach(async () => {
+        await removeAllData(key);
+    });
+
+    it("should return 200 ok when successfully retrieved all of the tenant's invitation", async () => {
+        const user = await createUser(key);
+        const invitations = [];
+        for (let i = 0; i < 5; i+=1) {
+           const tenant = await createTenant(key);
+           const invitation = await createInvitationUsingEmail(tenant.id, user.email);
+           invitation.tenantName = tenant.name;
+           invitations.push(invitation);
+        }
+
+        const result = await supertest(web)
+            .get('/users/invitations')
+            .set('Authorization', `Bearer ${user.accessToken}`);
+        
+        expect(result.status).toBe(200);
+        expect(result.body).toEqual({
+            success: true,
+            data: expect.any(Object),
+        });
+
+        expect(result.body.data).toHaveLength(5);
+        invitations.forEach((invitation) => {
+            expect(result.body.data).toContainEqual({
+                id: invitation.id,
+                tenantId: invitation.tenantId,
+                tenantName: invitation.tenantName,
+                role: invitation.role,
+            });
+        });
+    });
+
+    it('should return 401 unathorized when requested by an unathenticated user', async () => {
+        const result = await supertest(web)
+            .get('/users/invitations');
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'AUTH_REQUIRED',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 401 unathorized when access token is invalid', async () => {
+        const result = await supertest(web)
+            .get('/users/invitations')
+            .set('Authorization', 'Bearer invalid-access-token');
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'INVALID_ACCESS_TOKEN',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+})

@@ -16,7 +16,7 @@ const generateAccessToken = (userId) => {
 const verifyToken = (token) => {
     try {
         return jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-    } catch (error) {
+    } catch {
         return null;
     }
 };

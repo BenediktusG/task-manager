@@ -95,6 +95,18 @@ const changePassword = async (req, res, next) => {
     }
 };
 
+const getAllInvitations = async (req, res, next) => {
+    try {
+        const result = await userService.getAllInvitations(req.user);
+        res.status(200).json({
+            success: true,
+            data: result,
+        });
+    } catch (e) {
+        next(e);
+    }
+};
+
 export default {
     register,
     login,
@@ -104,4 +116,5 @@ export default {
     editCurrentUserInformation,
     deleteUser,
     changePassword,
+    getAllInvitations,
 };
