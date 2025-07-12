@@ -519,6 +519,64 @@ const editMemberRole = async (request, tenantId, targetUserId, user) => {
     };
 };
 
+const deleteMember = async (tenantId, targetUserId, user) => {
+    const tenant = await prismaClient.tenant.findUnique({
+        where: {
+            id: tenantId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!tenant) {
+        throw new NotFoundError('Failed to do the action because of invalid Tenant ID', 'NOT_FOUND_TENANT');
+    }
+
+    const member = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: user.id,
+                tenantId: tenantId,
+            }
+        },
+        select: {
+            role: true,
+        },
+    });
+    if (!member) {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    if (member.role !== 'ADMIN' && member.role !== 'SUPER_ADMIN') {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    const targetMemberData = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: targetUserId,
+                tenantId: tenantId,
+            },
+        },
+        select: {
+            id: true,
+            role: true,
+        },
+    });
+    if (!targetMemberData) {
+        throw new NotFoundError('Failed to do the action because of invalid user id', 'NOT_FOUND_USER');
+    }
+    if (targetMemberData.role === 'SUPER_ADMIN' && member.role === 'ADMIN') {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+    await prismaClient.member.delete({
+        where: {
+            id: targetMemberData.id,
+        },
+    });
+};
+
 export default {
     create,
     getAssociatedTenants,
@@ -531,4 +589,5 @@ export default {
     getSpecificInvitationById,
     deleteInvitation,
     editMemberRole,
+    deleteMember,
 };

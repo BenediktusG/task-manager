@@ -12,7 +12,7 @@ const create = async(req, res, next) => {
     }
 };
 
-const getAssociatedTenants = async (req, res, next) => {
+const getAssociatedTenants = async (req, res) => {
     const result = await tenantService.getAssociatedTenants(req.user);
     res.status(200).json({
         success: true,
@@ -134,6 +134,20 @@ const editMemberRole = async (req, res, next) => {
     }
 };
 
+const deleteMember = async (req, res, next) => {
+    try {
+        await tenantService.deleteMember(req.params.tenantId, req.params.userId, req.user);
+        res.status(200).json({
+            success: true,
+            data: {
+                message: 'Successfully deleted the user from the tenant',
+            },
+        });
+    } catch (e) {
+        next(e);
+    }
+};
+
 export default {
     create,
     getAssociatedTenants,
@@ -146,4 +160,5 @@ export default {
     getSpecificInvitationById,
     deleteInvitation,
     editMemberRole,
+    deleteMember,
 };

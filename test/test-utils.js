@@ -154,6 +154,25 @@ const checkInvitation = async (invitationId) => {
     return true;
 };
 
+const checkMember = async (userId, tenantId) => {
+    const member = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: userId,
+                tenantId: tenantId,
+            },
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (member) {
+        return true;
+    }
+    return false;
+}
+
 export {
     generateKey,
     removeAllUsers,
@@ -169,4 +188,5 @@ export {
     cleanUserData,
     createInvitation,
     checkInvitation,
+    checkMember,
 };

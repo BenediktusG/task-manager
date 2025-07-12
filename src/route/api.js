@@ -24,3 +24,4 @@ userRouter.get('/tenants/:tenantId/invitations', tenantController.getAllInvitati
 userRouter.get('/tenants/:tenantId/invitations/:invitationId', tenantController.getSpecificInvitationById);
 userRouter.delete('/tenants/:tenantId/invitations/:invitationId', tenantController.deleteInvitation);
 userRouter.patch('/tenants/:tenantId/members/:userId', tenantController.editMemberRole);
+userRouter.delete('/tenants/:tenantId/members/:userId', tenantController.deleteMember);

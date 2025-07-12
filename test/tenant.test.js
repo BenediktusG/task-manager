@@ -1,5 +1,5 @@
 import supertest from "supertest";
-import { checkInvitation, checkTenant, cleanUserData, createInvitation, createTenant, createUser, generateKey, generateTenantInformation, generateUserInformation, joinTenant, removeAllData } from "./test-utils.js";
+import { checkInvitation, checkMember, checkTenant, cleanUserData, createInvitation, createTenant, createUser, generateKey, generateTenantInformation, generateUserInformation, joinTenant, removeAllData } from "./test-utils.js";
 import { web } from "../src/application/web.js";
 import { logger } from "../src/application/logging.js";
 
@@ -161,8 +161,6 @@ describe('GET /tenants', () => {
         const tenant2 = await createTenant(key);
         const tenant3 = await createTenant(key);
         const tenant4 = await createTenant(key);
-        const tenant5 = await createTenant(key);
-        const tenant6 = await createTenant(key);
         await joinTenant(user.id, tenant1.id, 'ADMIN');
         await joinTenant(user.id, tenant2.id, 'SUPER_ADMIN');
         await joinTenant(user.id, tenant3.id, 'MANAGER');
@@ -172,7 +170,6 @@ describe('GET /tenants', () => {
             .get('/tenants')
             .set('Authorization', 'Bearer ' + user.accessToken);
         expect(result.status).toBe(200);
-        logger.debug(result.body);
         expect(result.body).toEqual({
             success: true,
             data: {
@@ -180,23 +177,23 @@ describe('GET /tenants', () => {
             },
         });
         const { tenants } = result.body.data;
-        expect(tenants.length).toBe(4);
-        expect(tenants.includes({
+        expect(tenants).toHaveLength(4);
+        expect(tenants).toContainEqual({
             id: tenant1.id,
             name: tenant1.name,
-        }));
-        expect(tenants.includes({
+        });
+        expect(tenants).toContainEqual({
             id: tenant2.id,
             name: tenant2.name,
-        }));
-        expect(tenants.includes({
+        });
+        expect(tenants).toContainEqual({
             id: tenant3.id,
             name: tenant3.name,
-        }));
-        expect(tenants.includes({
+        });
+        expect(tenants).toContainEqual({
             id: tenant4.id,
             name: tenant4.name,
-        }));
+        });
     });
 
     it('should return 401 unauthorized when requested by an unauthenticated user', async () => {
@@ -605,7 +602,7 @@ describe('DELETE /tenants/:tenantId', () => {
             .delete(`/tenants/${tenant.id}`)
             .set('Authorization', `Bearer ${user.accessToken}`);
         logger.debug(result.body);
-        expect(result.status).toEqual(403);
+        expect(result.status).toBe(403);
         expect(result.body).toEqual({
             success: false,
             error: {
@@ -624,7 +621,7 @@ describe('DELETE /tenants/:tenantId', () => {
             .delete(`/tenants/${tenant.id}`)
             .set('Authorization', `Bearer ${user.accessToken}`);
         logger.debug(result.body);
-        expect(result.status).toEqual(403);
+        expect(result.status).toBe(403);
         expect(result.body).toEqual({
             success: false,
             error: {
@@ -643,7 +640,7 @@ describe('DELETE /tenants/:tenantId', () => {
             .delete(`/tenants/${tenant.id}`)
             .set('Authorization', `Bearer ${user.accessToken}`);
         logger.debug(result.body);
-        expect(result.status).toEqual(403);
+        expect(result.status).toBe(403);
         expect(result.body).toEqual({
             success: false,
             error: {
@@ -662,7 +659,7 @@ describe('DELETE /tenants/:tenantId', () => {
             .delete(`/tenants/${tenant.id}`)
             .set('Authorization', `Bearer ${user.accessToken}`);
         logger.debug(result.body);
-        expect(result.status).toEqual(403);
+        expect(result.status).toBe(403);
         expect(result.body).toEqual({
             success: false,
             error: {
@@ -946,7 +943,7 @@ describe('GET /tenants/:tenantId/members', () => {
 
         const memberArray = [user1, user2, user3, user4];
         memberArray.forEach(cleanUserData);
-        expect(result.body.data.length).toBe(4);
+        expect(result.body.data).toHaveLength(4);
         expect(result.body.data).toEqual(expect.arrayContaining([user1, user2, user3, user4]));
     });
 
@@ -1053,7 +1050,7 @@ describe('GET /tenants/:tenantId/invitations', () => {
             delete data.tenantId;
         });
 
-        expect(result.body.data.length).toBe(4);
+        expect(result.body.data).toHaveLength(4);
         expect(result.body.data).toEqual(expect.arrayContaining(invitationsArray));
     });
 
@@ -1372,7 +1369,7 @@ describe('DELETE /tenants/:tenantId/invitations/:invitationId', () => {
             },
         });
         expect(result.body.data.message.length).toBeGreaterThan(0);
-        expect(await checkInvitation(invitation.id)).toEqual(false);
+        expect(await checkInvitation(invitation.id)).toBe(false);
     });
 
     it('should return 401 unauthorized when requested by an unauthentic user', async () => {
@@ -1819,3 +1816,211 @@ describe('PATCH /tenants/:tenantId/members/:userId', () => {
         expect(result.body.error.message.length).toBeGreaterThan(0);
     });
 }); 
+
+describe('DELETE /tenants/:tenantId/members/:userId', () => {
+    let key;
+    beforeEach(() => {
+        key = generateKey();    
+    });
+    afterEach(async () => {
+        await removeAllData(key);
+    });
+
+    it("should return 200 ok when successfully deleting a tenant's member", async () => {
+        const user1 = await createUser(key);
+        const user2 = await createUser(key);
+        const tenant = await createTenant(key);
+
+        await joinTenant(user1.id, tenant.id, 'ADMIN');
+        await joinTenant(user2.id, tenant.id);
+
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/members/${user2.id}`)
+            .set('Authorization', `Bearer ${user1.accessToken}`);
+        
+        expect(result.status).toBe(200);
+        expect(result.body).toEqual({
+            success: true,
+            data: {
+                message: 'Successfully deleted the user from the tenant',
+            },
+        });
+        expect(await checkMember(user2.id, tenant.id)).toBe(false);
+    });
+
+    it('should return 401 unauthorized when was requested by an unathentic user', async () => {
+        const user = await createUser(key);
+        const tenant = await createTenant(key);
+        await joinTenant(user.id, tenant.id);
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/members/${user.id}`);
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'AUTH_REQUIRED',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 401 unauthorized when access token is invalid', async () => {
+        const user = await createUser(key);
+        const tenant = await createTenant(key);
+        await joinTenant(user.id, tenant.id);
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/members/${user.id}`)
+            .set('Authorization', 'Bearer invalid-access-token');
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'INVALID_ACCESS_TOKEN',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 403 forbidden when requested by a non-member user', async () => {
+        const user1 = await createUser(key);
+        const tenant = await createTenant(key);
+        await joinTenant(user1.id, tenant.id);
+        const user2 = await createUser(key);
+
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/members/${user1.id}`)
+            .set('Authorization', `Bearer ${user2.accessToken}`);
+        
+        expect(result.status).toBe(403);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 403 forbidden when requested by a reguler member', async () => {
+        const user1 = await createUser(key);
+        const tenant = await createTenant(key);
+        await joinTenant(user1.id, tenant.id);
+        const user2 = await createUser(key);
+        await joinTenant(user2.id, tenant.id);
+
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/members/${user1.id}`)
+            .set('Authorization', `Bearer ${user2.accessToken}`);
+        
+        expect(result.status).toBe(403);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 403 forbidden when requested by a manager', async () => {
+        const user1 = await createUser(key);
+        const tenant = await createTenant(key);
+        await joinTenant(user1.id, tenant.id);
+        const user2 = await createUser(key);
+        await joinTenant(user2.id, tenant.id, 'MANAGER');
+
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/members/${user1.id}`)
+            .set('Authorization', `Bearer ${user2.accessToken}`);
+        
+        expect(result.status).toBe(403);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 403 forbidden when an admin want to delete a super admin', async () => {
+        const user1 = await createUser(key);
+        const tenant = await createTenant(key);
+        await joinTenant(user1.id, tenant.id, 'SUPER_ADMIN');
+        const user2 = await createUser(key);
+        await joinTenant(user2.id, tenant.id, 'ADMIN');
+
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/members/${user1.id}`)
+            .set('Authorization', `Bearer ${user2.accessToken}`);
+        
+        expect(result.status).toBe(403);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 404 not found when the tenant id is invalid', async () => {
+        const user = await createUser(key);
+        const result = await supertest(web)
+            .delete(`/tenants/invalid-tenant-id/members/${user.id}`)
+            .set('Authorization', `Bearer ${user.accessToken}`);
+        logger.debug(result.body);
+        expect(result.status).toBe(404);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'NOT_FOUND_TENANT',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 404 not found when the user id is invalid', async () => {
+        const user = await createUser(key);
+        const tenant = await createTenant(key);
+        await joinTenant(user.id, tenant.id, 'ADMIN');
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/members/invalid-user-id`)
+            .set('Authorization', `Bearer ${user.accessToken}`);
+        expect(result.status).toBe(404);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'NOT_FOUND_USER',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+    
+    it('should return 404 not found when tyring to edit a non-member user role', async () => {
+        const user = await createUser(key);
+        const user2 = await createUser(key);
+        const tenant = await createTenant(key);
+        await joinTenant(user.id, tenant.id, 'ADMIN');
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/members/${user2.id}`)
+            .set('Authorization', `Bearer ${user.accessToken}`);
+        expect(result.status).toBe(404);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'NOT_FOUND_USER',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+});
