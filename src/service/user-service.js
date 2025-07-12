@@ -8,6 +8,7 @@ import { validate } from "../validation/validation.js"
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { AuthorizationError } from "../error/authorization-error.js";
+import { NotFoundError } from "../error/not-found-error.js";
 
 
 const register = async (request) => {
@@ -244,6 +245,19 @@ const getAllInvitations = async (user) => {
     return invitations;
 }
 
+const getInvitationById = async (invitationId, user) => {
+    const invitation = await prismaClient.invitation.findUnique({
+        where: {
+            id: invitationId,
+            email: user.email,
+        }
+    });
+    if (!invitation) {
+        throw new NotFoundError('Failed to get the invitation information because of invalid invitation id', 'NOT_FOUND_INVITATION');
+    }
+    return invitation;
+};
+
 export default {
     register,
     login,
@@ -254,4 +268,5 @@ export default {
     deleteUser,
     changePassword,
     getAllInvitations,
+    getInvitationById,
 };

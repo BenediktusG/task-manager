@@ -95,9 +95,17 @@ const changePassword = async (req, res, next) => {
     }
 };
 
-const getAllInvitations = async (req, res, next) => {
+const getAllInvitations = async (req, res) => {
+    const result = await userService.getAllInvitations(req.user);
+    res.status(200).json({
+        success: true,
+        data: result,
+    });
+};
+
+const getInvitationById = async (req, res, next) => {
     try {
-        const result = await userService.getAllInvitations(req.user);
+        const result = await userService.getInvitationById(req.params.invitationId, req.user);
         res.status(200).json({
             success: true,
             data: result,
@@ -105,7 +113,7 @@ const getAllInvitations = async (req, res, next) => {
     } catch (e) {
         next(e);
     }
-};
+}
 
 export default {
     register,
@@ -117,4 +125,5 @@ export default {
     deleteUser,
     changePassword,
     getAllInvitations,
+    getInvitationById,
 };
