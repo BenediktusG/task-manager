@@ -577,6 +577,42 @@ const deleteMember = async (tenantId, targetUserId, user) => {
     });
 };
 
+const leaveTenant = async (tenantId, user) => {
+    const tenant = await prismaClient.tenant.findUnique({
+        where: {
+            id: tenantId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!tenant) {
+        throw new NotFoundError('Unable to do the action because of invalid tenant id', 'NOT_FOUND_TENANT');
+    }
+
+    const memberData = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: user.id,
+                tenantId: tenantId,
+            },
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!memberData) {
+        throw new NotFoundError('Unable to leave the tenant because of not found tenant', 'NOT_FOUND_TENANT');
+    }
+    await prismaClient.member.delete({
+        where: {
+            id: memberData.id,
+        },
+    });
+};
+
 export default {
     create,
     getAssociatedTenants,
@@ -590,4 +626,5 @@ export default {
     deleteInvitation,
     editMemberRole,
     deleteMember,
+    leaveTenant,
 };

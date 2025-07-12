@@ -148,6 +148,20 @@ const deleteMember = async (req, res, next) => {
     }
 };
 
+const leaveTenant = async (req, res, next) => {
+    try {
+        await tenantService.leaveTenant(req.params.tenantId, req.user);
+        res.status(200).json({
+            success: true,
+            data: {
+                message: "successfully leave the tenant",
+            },
+        });
+    } catch (e) {
+        next(e);
+    }
+}
+
 export default {
     create,
     getAssociatedTenants,
@@ -161,4 +175,5 @@ export default {
     deleteInvitation,
     editMemberRole,
     deleteMember,
+    leaveTenant,
 };

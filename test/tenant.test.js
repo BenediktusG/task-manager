@@ -1848,7 +1848,7 @@ describe('DELETE /tenants/:tenantId/members/:userId', () => {
         expect(await checkMember(user2.id, tenant.id)).toBe(false);
     });
 
-    it('should return 401 unauthorized when was requested by an unathentic user', async () => {
+    it('should return 401 unauthorized when was requested by an unathenticated user', async () => {
         const user = await createUser(key);
         const tenant = await createTenant(key);
         await joinTenant(user.id, tenant.id);
@@ -2018,6 +2018,99 @@ describe('DELETE /tenants/:tenantId/members/:userId', () => {
             success: false,
             error: {
                 code: 'NOT_FOUND_USER',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+});
+
+describe('DELETE /tenants/:tenantId/members/me', () => {
+    let key;
+    beforeEach(() => {
+        key = generateKey();    
+    });
+    afterEach(async () => {
+        await removeAllData(key);
+    });
+
+    it('should return 200 ok when a user successfully left the tenant', async () => {
+        const user = await createUser(key);
+        const tenant = await createTenant(key);
+        await joinTenant(user.id, tenant.id);
+        
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/members/me`)
+            .set('Authorization', `Bearer ${user.accessToken}`);
+        logger.debug(result.body);
+        expect(result.status).toBe(200);
+        expect(result.body).toEqual({
+            success: true,
+            data: {
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.data.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 401 unathorized when requested by an unathenticated user', async () => {
+        const tenant = await createTenant(key);
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/members/me`);
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'AUTH_REQUIRED',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 401 unathorized when access token is invalid', async () => {
+        const tenant = await createTenant(key);
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/members/me`)
+            .set('Authorization', 'Bearer invalid-access-token');
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'INVALID_ACCESS_TOKEN',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 404 not found when the tenant id is invalid', async () => {
+        const user = await createUser(key);
+        const result = await supertest(web)
+            .delete(`/tenants/inavlid-tenant-id/members/me`)
+            .set('Authorization', `Bearer ${user.accessToken}`);
+        expect(result.status).toBe(404);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'NOT_FOUND_TENANT',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 404 when requested by a non-member user', async () => {
+        const user = await createUser(key);
+        const tenant = await createTenant(key);
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/members/me`)
+            .set('Authorization', `Bearer ${user.accessToken}`);
+        expect(result.status).toBe(404);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'NOT_FOUND_TENANT',
                 message: expect.any(String),
             },
         });
