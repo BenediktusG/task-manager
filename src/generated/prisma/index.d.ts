@@ -1505,6 +1505,7 @@ export namespace Prisma {
     assignedTasks: number
     refreshToken: number
     joinRequests: number
+    joinRequestHandled: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1513,6 +1514,7 @@ export namespace Prisma {
     assignedTasks?: boolean | UserCountOutputTypeCountAssignedTasksArgs
     refreshToken?: boolean | UserCountOutputTypeCountRefreshTokenArgs
     joinRequests?: boolean | UserCountOutputTypeCountJoinRequestsArgs
+    joinRequestHandled?: boolean | UserCountOutputTypeCountJoinRequestHandledArgs
   }
 
   // Custom InputTypes
@@ -1558,6 +1560,13 @@ export namespace Prisma {
    * UserCountOutputType without action
    */
   export type UserCountOutputTypeCountJoinRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JoinRequestWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountJoinRequestHandledArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: JoinRequestWhereInput
   }
 
@@ -1816,6 +1825,7 @@ export namespace Prisma {
     assignedTasks?: boolean | User$assignedTasksArgs<ExtArgs>
     refreshToken?: boolean | User$refreshTokenArgs<ExtArgs>
     joinRequests?: boolean | User$joinRequestsArgs<ExtArgs>
+    joinRequestHandled?: boolean | User$joinRequestHandledArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1835,6 +1845,7 @@ export namespace Prisma {
     assignedTasks?: boolean | User$assignedTasksArgs<ExtArgs>
     refreshToken?: boolean | User$refreshTokenArgs<ExtArgs>
     joinRequests?: boolean | User$joinRequestsArgs<ExtArgs>
+    joinRequestHandled?: boolean | User$joinRequestHandledArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -1846,6 +1857,7 @@ export namespace Prisma {
       assignedTasks: Prisma.$TaskAssigmentPayload<ExtArgs>[]
       refreshToken: Prisma.$TokenPayload<ExtArgs>[]
       joinRequests: Prisma.$JoinRequestPayload<ExtArgs>[]
+      joinRequestHandled: Prisma.$JoinRequestPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2197,6 +2209,7 @@ export namespace Prisma {
     assignedTasks<T extends User$assignedTasksArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedTasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaskAssigmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     refreshToken<T extends User$refreshTokenArgs<ExtArgs> = {}>(args?: Subset<T, User$refreshTokenArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     joinRequests<T extends User$joinRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$joinRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JoinRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    joinRequestHandled<T extends User$joinRequestHandledArgs<ExtArgs> = {}>(args?: Subset<T, User$joinRequestHandledArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JoinRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2672,6 +2685,30 @@ export namespace Prisma {
    * User.joinRequests
    */
   export type User$joinRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JoinRequest
+     */
+    select?: JoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JoinRequest
+     */
+    omit?: JoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JoinRequestInclude<ExtArgs> | null
+    where?: JoinRequestWhereInput
+    orderBy?: JoinRequestOrderByWithRelationInput | JoinRequestOrderByWithRelationInput[]
+    cursor?: JoinRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JoinRequestScalarFieldEnum | JoinRequestScalarFieldEnum[]
+  }
+
+  /**
+   * User.joinRequestHandled
+   */
+  export type User$joinRequestHandledArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the JoinRequest
      */
@@ -8570,6 +8607,7 @@ export namespace Prisma {
     tenantId: string | null
     createdAt: Date | null
     handledAt: Date | null
+    handlerUserId: string | null
   }
 
   export type JoinRequestMaxAggregateOutputType = {
@@ -8580,6 +8618,7 @@ export namespace Prisma {
     tenantId: string | null
     createdAt: Date | null
     handledAt: Date | null
+    handlerUserId: string | null
   }
 
   export type JoinRequestCountAggregateOutputType = {
@@ -8590,6 +8629,7 @@ export namespace Prisma {
     tenantId: number
     createdAt: number
     handledAt: number
+    handlerUserId: number
     _all: number
   }
 
@@ -8602,6 +8642,7 @@ export namespace Prisma {
     tenantId?: true
     createdAt?: true
     handledAt?: true
+    handlerUserId?: true
   }
 
   export type JoinRequestMaxAggregateInputType = {
@@ -8612,6 +8653,7 @@ export namespace Prisma {
     tenantId?: true
     createdAt?: true
     handledAt?: true
+    handlerUserId?: true
   }
 
   export type JoinRequestCountAggregateInputType = {
@@ -8622,6 +8664,7 @@ export namespace Prisma {
     tenantId?: true
     createdAt?: true
     handledAt?: true
+    handlerUserId?: true
     _all?: true
   }
 
@@ -8705,6 +8748,7 @@ export namespace Prisma {
     tenantId: string
     createdAt: Date
     handledAt: Date | null
+    handlerUserId: string | null
     _count: JoinRequestCountAggregateOutputType | null
     _min: JoinRequestMinAggregateOutputType | null
     _max: JoinRequestMaxAggregateOutputType | null
@@ -8732,6 +8776,8 @@ export namespace Prisma {
     tenantId?: boolean
     createdAt?: boolean
     handledAt?: boolean
+    handlerUserId?: boolean
+    handledBy?: boolean | JoinRequest$handledByArgs<ExtArgs>
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["joinRequest"]>
@@ -8746,10 +8792,12 @@ export namespace Prisma {
     tenantId?: boolean
     createdAt?: boolean
     handledAt?: boolean
+    handlerUserId?: boolean
   }
 
-  export type JoinRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "message" | "status" | "userId" | "tenantId" | "createdAt" | "handledAt", ExtArgs["result"]["joinRequest"]>
+  export type JoinRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "message" | "status" | "userId" | "tenantId" | "createdAt" | "handledAt" | "handlerUserId", ExtArgs["result"]["joinRequest"]>
   export type JoinRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    handledBy?: boolean | JoinRequest$handledByArgs<ExtArgs>
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -8757,6 +8805,7 @@ export namespace Prisma {
   export type $JoinRequestPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "JoinRequest"
     objects: {
+      handledBy: Prisma.$UserPayload<ExtArgs> | null
       tenant: Prisma.$TenantPayload<ExtArgs>
       user: Prisma.$UserPayload<ExtArgs>
     }
@@ -8768,6 +8817,7 @@ export namespace Prisma {
       tenantId: string
       createdAt: Date
       handledAt: Date | null
+      handlerUserId: string | null
     }, ExtArgs["result"]["joinRequest"]>
     composites: {}
   }
@@ -9108,6 +9158,7 @@ export namespace Prisma {
    */
   export interface Prisma__JoinRequestClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    handledBy<T extends JoinRequest$handledByArgs<ExtArgs> = {}>(args?: Subset<T, JoinRequest$handledByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
@@ -9146,6 +9197,7 @@ export namespace Prisma {
     readonly tenantId: FieldRef<"JoinRequest", 'String'>
     readonly createdAt: FieldRef<"JoinRequest", 'DateTime'>
     readonly handledAt: FieldRef<"JoinRequest", 'DateTime'>
+    readonly handlerUserId: FieldRef<"JoinRequest", 'String'>
   }
     
 
@@ -9489,6 +9541,25 @@ export namespace Prisma {
   }
 
   /**
+   * JoinRequest.handledBy
+   */
+  export type JoinRequest$handledByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
    * JoinRequest without action
    */
   export type JoinRequestDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9611,7 +9682,8 @@ export namespace Prisma {
     userId: 'userId',
     tenantId: 'tenantId',
     createdAt: 'createdAt',
-    handledAt: 'handledAt'
+    handledAt: 'handledAt',
+    handlerUserId: 'handlerUserId'
   };
 
   export type JoinRequestScalarFieldEnum = (typeof JoinRequestScalarFieldEnum)[keyof typeof JoinRequestScalarFieldEnum]
@@ -9703,7 +9775,8 @@ export namespace Prisma {
     id: 'id',
     message: 'message',
     userId: 'userId',
-    tenantId: 'tenantId'
+    tenantId: 'tenantId',
+    handlerUserId: 'handlerUserId'
   };
 
   export type JoinRequestOrderByRelevanceFieldEnum = (typeof JoinRequestOrderByRelevanceFieldEnum)[keyof typeof JoinRequestOrderByRelevanceFieldEnum]
@@ -9793,6 +9866,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentListRelationFilter
     refreshToken?: TokenListRelationFilter
     joinRequests?: JoinRequestListRelationFilter
+    joinRequestHandled?: JoinRequestListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -9805,6 +9879,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentOrderByRelationAggregateInput
     refreshToken?: TokenOrderByRelationAggregateInput
     joinRequests?: JoinRequestOrderByRelationAggregateInput
+    joinRequestHandled?: JoinRequestOrderByRelationAggregateInput
     _relevance?: UserOrderByRelevanceInput
   }
 
@@ -9821,6 +9896,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentListRelationFilter
     refreshToken?: TokenListRelationFilter
     joinRequests?: JoinRequestListRelationFilter
+    joinRequestHandled?: JoinRequestListRelationFilter
   }, "id" | "username" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -10250,6 +10326,8 @@ export namespace Prisma {
     tenantId?: StringFilter<"JoinRequest"> | string
     createdAt?: DateTimeFilter<"JoinRequest"> | Date | string
     handledAt?: DateTimeNullableFilter<"JoinRequest"> | Date | string | null
+    handlerUserId?: StringNullableFilter<"JoinRequest"> | string | null
+    handledBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
@@ -10262,6 +10340,8 @@ export namespace Prisma {
     tenantId?: SortOrder
     createdAt?: SortOrder
     handledAt?: SortOrderInput | SortOrder
+    handlerUserId?: SortOrderInput | SortOrder
+    handledBy?: UserOrderByWithRelationInput
     tenant?: TenantOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
     _relevance?: JoinRequestOrderByRelevanceInput
@@ -10278,6 +10358,8 @@ export namespace Prisma {
     tenantId?: StringFilter<"JoinRequest"> | string
     createdAt?: DateTimeFilter<"JoinRequest"> | Date | string
     handledAt?: DateTimeNullableFilter<"JoinRequest"> | Date | string | null
+    handlerUserId?: StringNullableFilter<"JoinRequest"> | string | null
+    handledBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
@@ -10290,6 +10372,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     createdAt?: SortOrder
     handledAt?: SortOrderInput | SortOrder
+    handlerUserId?: SortOrderInput | SortOrder
     _count?: JoinRequestCountOrderByAggregateInput
     _max?: JoinRequestMaxOrderByAggregateInput
     _min?: JoinRequestMinOrderByAggregateInput
@@ -10306,6 +10389,7 @@ export namespace Prisma {
     tenantId?: StringWithAggregatesFilter<"JoinRequest"> | string
     createdAt?: DateTimeWithAggregatesFilter<"JoinRequest"> | Date | string
     handledAt?: DateTimeNullableWithAggregatesFilter<"JoinRequest"> | Date | string | null
+    handlerUserId?: StringNullableWithAggregatesFilter<"JoinRequest"> | string | null
   }
 
   export type UserCreateInput = {
@@ -10318,6 +10402,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentCreateNestedManyWithoutUserInput
     refreshToken?: TokenCreateNestedManyWithoutUserInput
     joinRequests?: JoinRequestCreateNestedManyWithoutUserInput
+    joinRequestHandled?: JoinRequestCreateNestedManyWithoutHandledByInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -10330,6 +10415,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentUncheckedCreateNestedManyWithoutUserInput
     refreshToken?: TokenUncheckedCreateNestedManyWithoutUserInput
     joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutUserInput
+    joinRequestHandled?: JoinRequestUncheckedCreateNestedManyWithoutHandledByInput
   }
 
   export type UserUpdateInput = {
@@ -10342,6 +10428,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentUpdateManyWithoutUserNestedInput
     refreshToken?: TokenUpdateManyWithoutUserNestedInput
     joinRequests?: JoinRequestUpdateManyWithoutUserNestedInput
+    joinRequestHandled?: JoinRequestUpdateManyWithoutHandledByNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -10354,6 +10441,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentUncheckedUpdateManyWithoutUserNestedInput
     refreshToken?: TokenUncheckedUpdateManyWithoutUserNestedInput
     joinRequests?: JoinRequestUncheckedUpdateManyWithoutUserNestedInput
+    joinRequestHandled?: JoinRequestUncheckedUpdateManyWithoutHandledByNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -10780,6 +10868,7 @@ export namespace Prisma {
     status?: $Enums.JoinRequestStatus
     createdAt?: Date | string
     handledAt?: Date | string | null
+    handledBy?: UserCreateNestedOneWithoutJoinRequestHandledInput
     tenant: TenantCreateNestedOneWithoutJoinRequestsInput
     user: UserCreateNestedOneWithoutJoinRequestsInput
   }
@@ -10792,6 +10881,7 @@ export namespace Prisma {
     tenantId: string
     createdAt?: Date | string
     handledAt?: Date | string | null
+    handlerUserId?: string | null
   }
 
   export type JoinRequestUpdateInput = {
@@ -10800,6 +10890,7 @@ export namespace Prisma {
     status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    handledBy?: UserUpdateOneWithoutJoinRequestHandledNestedInput
     tenant?: TenantUpdateOneRequiredWithoutJoinRequestsNestedInput
     user?: UserUpdateOneRequiredWithoutJoinRequestsNestedInput
   }
@@ -10812,6 +10903,7 @@ export namespace Prisma {
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    handlerUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type JoinRequestCreateManyInput = {
@@ -10822,6 +10914,7 @@ export namespace Prisma {
     tenantId: string
     createdAt?: Date | string
     handledAt?: Date | string | null
+    handlerUserId?: string | null
   }
 
   export type JoinRequestUpdateManyMutationInput = {
@@ -10840,6 +10933,7 @@ export namespace Prisma {
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    handlerUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -11384,6 +11478,11 @@ export namespace Prisma {
     not?: NestedEnumJoinRequestStatusFilter<$PrismaModel> | $Enums.JoinRequestStatus
   }
 
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
   export type JoinRequestOrderByRelevanceInput = {
     fields: JoinRequestOrderByRelevanceFieldEnum | JoinRequestOrderByRelevanceFieldEnum[]
     sort: SortOrder
@@ -11398,6 +11497,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     createdAt?: SortOrder
     handledAt?: SortOrder
+    handlerUserId?: SortOrder
   }
 
   export type JoinRequestMaxOrderByAggregateInput = {
@@ -11408,6 +11508,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     createdAt?: SortOrder
     handledAt?: SortOrder
+    handlerUserId?: SortOrder
   }
 
   export type JoinRequestMinOrderByAggregateInput = {
@@ -11418,6 +11519,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     createdAt?: SortOrder
     handledAt?: SortOrder
+    handlerUserId?: SortOrder
   }
 
   export type EnumJoinRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -11465,6 +11567,13 @@ export namespace Prisma {
     connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
   }
 
+  export type JoinRequestCreateNestedManyWithoutHandledByInput = {
+    create?: XOR<JoinRequestCreateWithoutHandledByInput, JoinRequestUncheckedCreateWithoutHandledByInput> | JoinRequestCreateWithoutHandledByInput[] | JoinRequestUncheckedCreateWithoutHandledByInput[]
+    connectOrCreate?: JoinRequestCreateOrConnectWithoutHandledByInput | JoinRequestCreateOrConnectWithoutHandledByInput[]
+    createMany?: JoinRequestCreateManyHandledByInputEnvelope
+    connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+  }
+
   export type MemberUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<MemberCreateWithoutUserInput, MemberUncheckedCreateWithoutUserInput> | MemberCreateWithoutUserInput[] | MemberUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MemberCreateOrConnectWithoutUserInput | MemberCreateOrConnectWithoutUserInput[]
@@ -11497,6 +11606,13 @@ export namespace Prisma {
     create?: XOR<JoinRequestCreateWithoutUserInput, JoinRequestUncheckedCreateWithoutUserInput> | JoinRequestCreateWithoutUserInput[] | JoinRequestUncheckedCreateWithoutUserInput[]
     connectOrCreate?: JoinRequestCreateOrConnectWithoutUserInput | JoinRequestCreateOrConnectWithoutUserInput[]
     createMany?: JoinRequestCreateManyUserInputEnvelope
+    connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+  }
+
+  export type JoinRequestUncheckedCreateNestedManyWithoutHandledByInput = {
+    create?: XOR<JoinRequestCreateWithoutHandledByInput, JoinRequestUncheckedCreateWithoutHandledByInput> | JoinRequestCreateWithoutHandledByInput[] | JoinRequestUncheckedCreateWithoutHandledByInput[]
+    connectOrCreate?: JoinRequestCreateOrConnectWithoutHandledByInput | JoinRequestCreateOrConnectWithoutHandledByInput[]
+    createMany?: JoinRequestCreateManyHandledByInputEnvelope
     connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
   }
 
@@ -11574,6 +11690,20 @@ export namespace Prisma {
     deleteMany?: JoinRequestScalarWhereInput | JoinRequestScalarWhereInput[]
   }
 
+  export type JoinRequestUpdateManyWithoutHandledByNestedInput = {
+    create?: XOR<JoinRequestCreateWithoutHandledByInput, JoinRequestUncheckedCreateWithoutHandledByInput> | JoinRequestCreateWithoutHandledByInput[] | JoinRequestUncheckedCreateWithoutHandledByInput[]
+    connectOrCreate?: JoinRequestCreateOrConnectWithoutHandledByInput | JoinRequestCreateOrConnectWithoutHandledByInput[]
+    upsert?: JoinRequestUpsertWithWhereUniqueWithoutHandledByInput | JoinRequestUpsertWithWhereUniqueWithoutHandledByInput[]
+    createMany?: JoinRequestCreateManyHandledByInputEnvelope
+    set?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    disconnect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    delete?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    update?: JoinRequestUpdateWithWhereUniqueWithoutHandledByInput | JoinRequestUpdateWithWhereUniqueWithoutHandledByInput[]
+    updateMany?: JoinRequestUpdateManyWithWhereWithoutHandledByInput | JoinRequestUpdateManyWithWhereWithoutHandledByInput[]
+    deleteMany?: JoinRequestScalarWhereInput | JoinRequestScalarWhereInput[]
+  }
+
   export type MemberUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<MemberCreateWithoutUserInput, MemberUncheckedCreateWithoutUserInput> | MemberCreateWithoutUserInput[] | MemberUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MemberCreateOrConnectWithoutUserInput | MemberCreateOrConnectWithoutUserInput[]
@@ -11641,6 +11771,20 @@ export namespace Prisma {
     connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
     update?: JoinRequestUpdateWithWhereUniqueWithoutUserInput | JoinRequestUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: JoinRequestUpdateManyWithWhereWithoutUserInput | JoinRequestUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: JoinRequestScalarWhereInput | JoinRequestScalarWhereInput[]
+  }
+
+  export type JoinRequestUncheckedUpdateManyWithoutHandledByNestedInput = {
+    create?: XOR<JoinRequestCreateWithoutHandledByInput, JoinRequestUncheckedCreateWithoutHandledByInput> | JoinRequestCreateWithoutHandledByInput[] | JoinRequestUncheckedCreateWithoutHandledByInput[]
+    connectOrCreate?: JoinRequestCreateOrConnectWithoutHandledByInput | JoinRequestCreateOrConnectWithoutHandledByInput[]
+    upsert?: JoinRequestUpsertWithWhereUniqueWithoutHandledByInput | JoinRequestUpsertWithWhereUniqueWithoutHandledByInput[]
+    createMany?: JoinRequestCreateManyHandledByInputEnvelope
+    set?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    disconnect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    delete?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    update?: JoinRequestUpdateWithWhereUniqueWithoutHandledByInput | JoinRequestUpdateWithWhereUniqueWithoutHandledByInput[]
+    updateMany?: JoinRequestUpdateManyWithWhereWithoutHandledByInput | JoinRequestUpdateManyWithWhereWithoutHandledByInput[]
     deleteMany?: JoinRequestScalarWhereInput | JoinRequestScalarWhereInput[]
   }
 
@@ -12002,6 +12146,12 @@ export namespace Prisma {
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutInvitationsInput, TenantUpdateWithoutInvitationsInput>, TenantUncheckedUpdateWithoutInvitationsInput>
   }
 
+  export type UserCreateNestedOneWithoutJoinRequestHandledInput = {
+    create?: XOR<UserCreateWithoutJoinRequestHandledInput, UserUncheckedCreateWithoutJoinRequestHandledInput>
+    connectOrCreate?: UserCreateOrConnectWithoutJoinRequestHandledInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type TenantCreateNestedOneWithoutJoinRequestsInput = {
     create?: XOR<TenantCreateWithoutJoinRequestsInput, TenantUncheckedCreateWithoutJoinRequestsInput>
     connectOrCreate?: TenantCreateOrConnectWithoutJoinRequestsInput
@@ -12016,6 +12166,16 @@ export namespace Prisma {
 
   export type EnumJoinRequestStatusFieldUpdateOperationsInput = {
     set?: $Enums.JoinRequestStatus
+  }
+
+  export type UserUpdateOneWithoutJoinRequestHandledNestedInput = {
+    create?: XOR<UserCreateWithoutJoinRequestHandledInput, UserUncheckedCreateWithoutJoinRequestHandledInput>
+    connectOrCreate?: UserCreateOrConnectWithoutJoinRequestHandledInput
+    upsert?: UserUpsertWithoutJoinRequestHandledInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutJoinRequestHandledInput, UserUpdateWithoutJoinRequestHandledInput>, UserUncheckedUpdateWithoutJoinRequestHandledInput>
   }
 
   export type TenantUpdateOneRequiredWithoutJoinRequestsNestedInput = {
@@ -12394,6 +12554,7 @@ export namespace Prisma {
     status?: $Enums.JoinRequestStatus
     createdAt?: Date | string
     handledAt?: Date | string | null
+    handledBy?: UserCreateNestedOneWithoutJoinRequestHandledInput
     tenant: TenantCreateNestedOneWithoutJoinRequestsInput
   }
 
@@ -12404,6 +12565,7 @@ export namespace Prisma {
     tenantId: string
     createdAt?: Date | string
     handledAt?: Date | string | null
+    handlerUserId?: string | null
   }
 
   export type JoinRequestCreateOrConnectWithoutUserInput = {
@@ -12413,6 +12575,36 @@ export namespace Prisma {
 
   export type JoinRequestCreateManyUserInputEnvelope = {
     data: JoinRequestCreateManyUserInput | JoinRequestCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type JoinRequestCreateWithoutHandledByInput = {
+    id?: string
+    message?: string | null
+    status?: $Enums.JoinRequestStatus
+    createdAt?: Date | string
+    handledAt?: Date | string | null
+    tenant: TenantCreateNestedOneWithoutJoinRequestsInput
+    user: UserCreateNestedOneWithoutJoinRequestsInput
+  }
+
+  export type JoinRequestUncheckedCreateWithoutHandledByInput = {
+    id?: string
+    message?: string | null
+    status?: $Enums.JoinRequestStatus
+    userId: string
+    tenantId: string
+    createdAt?: Date | string
+    handledAt?: Date | string | null
+  }
+
+  export type JoinRequestCreateOrConnectWithoutHandledByInput = {
+    where: JoinRequestWhereUniqueInput
+    create: XOR<JoinRequestCreateWithoutHandledByInput, JoinRequestUncheckedCreateWithoutHandledByInput>
+  }
+
+  export type JoinRequestCreateManyHandledByInputEnvelope = {
+    data: JoinRequestCreateManyHandledByInput | JoinRequestCreateManyHandledByInput[]
     skipDuplicates?: boolean
   }
 
@@ -12556,6 +12748,23 @@ export namespace Prisma {
     tenantId?: StringFilter<"JoinRequest"> | string
     createdAt?: DateTimeFilter<"JoinRequest"> | Date | string
     handledAt?: DateTimeNullableFilter<"JoinRequest"> | Date | string | null
+    handlerUserId?: StringNullableFilter<"JoinRequest"> | string | null
+  }
+
+  export type JoinRequestUpsertWithWhereUniqueWithoutHandledByInput = {
+    where: JoinRequestWhereUniqueInput
+    update: XOR<JoinRequestUpdateWithoutHandledByInput, JoinRequestUncheckedUpdateWithoutHandledByInput>
+    create: XOR<JoinRequestCreateWithoutHandledByInput, JoinRequestUncheckedCreateWithoutHandledByInput>
+  }
+
+  export type JoinRequestUpdateWithWhereUniqueWithoutHandledByInput = {
+    where: JoinRequestWhereUniqueInput
+    data: XOR<JoinRequestUpdateWithoutHandledByInput, JoinRequestUncheckedUpdateWithoutHandledByInput>
+  }
+
+  export type JoinRequestUpdateManyWithWhereWithoutHandledByInput = {
+    where: JoinRequestScalarWhereInput
+    data: XOR<JoinRequestUpdateManyMutationInput, JoinRequestUncheckedUpdateManyWithoutHandledByInput>
   }
 
   export type MemberCreateWithoutTenantInput = {
@@ -12654,6 +12863,7 @@ export namespace Prisma {
     status?: $Enums.JoinRequestStatus
     createdAt?: Date | string
     handledAt?: Date | string | null
+    handledBy?: UserCreateNestedOneWithoutJoinRequestHandledInput
     user: UserCreateNestedOneWithoutJoinRequestsInput
   }
 
@@ -12664,6 +12874,7 @@ export namespace Prisma {
     userId: string
     createdAt?: Date | string
     handledAt?: Date | string | null
+    handlerUserId?: string | null
   }
 
   export type JoinRequestCreateOrConnectWithoutTenantInput = {
@@ -12808,6 +13019,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentCreateNestedManyWithoutUserInput
     refreshToken?: TokenCreateNestedManyWithoutUserInput
     joinRequests?: JoinRequestCreateNestedManyWithoutUserInput
+    joinRequestHandled?: JoinRequestCreateNestedManyWithoutHandledByInput
   }
 
   export type UserUncheckedCreateWithoutTasksCreatedInput = {
@@ -12819,6 +13031,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentUncheckedCreateNestedManyWithoutUserInput
     refreshToken?: TokenUncheckedCreateNestedManyWithoutUserInput
     joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutUserInput
+    joinRequestHandled?: JoinRequestUncheckedCreateNestedManyWithoutHandledByInput
   }
 
   export type UserCreateOrConnectWithoutTasksCreatedInput = {
@@ -12893,6 +13106,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentUpdateManyWithoutUserNestedInput
     refreshToken?: TokenUpdateManyWithoutUserNestedInput
     joinRequests?: JoinRequestUpdateManyWithoutUserNestedInput
+    joinRequestHandled?: JoinRequestUpdateManyWithoutHandledByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTasksCreatedInput = {
@@ -12904,6 +13118,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentUncheckedUpdateManyWithoutUserNestedInput
     refreshToken?: TokenUncheckedUpdateManyWithoutUserNestedInput
     joinRequests?: JoinRequestUncheckedUpdateManyWithoutUserNestedInput
+    joinRequestHandled?: JoinRequestUncheckedUpdateManyWithoutHandledByNestedInput
   }
 
   export type UserCreateWithoutAssignedTasksInput = {
@@ -12915,6 +13130,7 @@ export namespace Prisma {
     tasksCreated?: TaskCreateNestedManyWithoutCreatedByInput
     refreshToken?: TokenCreateNestedManyWithoutUserInput
     joinRequests?: JoinRequestCreateNestedManyWithoutUserInput
+    joinRequestHandled?: JoinRequestCreateNestedManyWithoutHandledByInput
   }
 
   export type UserUncheckedCreateWithoutAssignedTasksInput = {
@@ -12926,6 +13142,7 @@ export namespace Prisma {
     tasksCreated?: TaskUncheckedCreateNestedManyWithoutCreatedByInput
     refreshToken?: TokenUncheckedCreateNestedManyWithoutUserInput
     joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutUserInput
+    joinRequestHandled?: JoinRequestUncheckedCreateNestedManyWithoutHandledByInput
   }
 
   export type UserCreateOrConnectWithoutAssignedTasksInput = {
@@ -12986,6 +13203,7 @@ export namespace Prisma {
     tasksCreated?: TaskUpdateManyWithoutCreatedByNestedInput
     refreshToken?: TokenUpdateManyWithoutUserNestedInput
     joinRequests?: JoinRequestUpdateManyWithoutUserNestedInput
+    joinRequestHandled?: JoinRequestUpdateManyWithoutHandledByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedTasksInput = {
@@ -12997,6 +13215,7 @@ export namespace Prisma {
     tasksCreated?: TaskUncheckedUpdateManyWithoutCreatedByNestedInput
     refreshToken?: TokenUncheckedUpdateManyWithoutUserNestedInput
     joinRequests?: JoinRequestUncheckedUpdateManyWithoutUserNestedInput
+    joinRequestHandled?: JoinRequestUncheckedUpdateManyWithoutHandledByNestedInput
   }
 
   export type TaskUpsertWithoutAssignedUsersInput = {
@@ -13047,6 +13266,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentCreateNestedManyWithoutUserInput
     refreshToken?: TokenCreateNestedManyWithoutUserInput
     joinRequests?: JoinRequestCreateNestedManyWithoutUserInput
+    joinRequestHandled?: JoinRequestCreateNestedManyWithoutHandledByInput
   }
 
   export type UserUncheckedCreateWithoutTenantsInput = {
@@ -13058,6 +13278,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentUncheckedCreateNestedManyWithoutUserInput
     refreshToken?: TokenUncheckedCreateNestedManyWithoutUserInput
     joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutUserInput
+    joinRequestHandled?: JoinRequestUncheckedCreateNestedManyWithoutHandledByInput
   }
 
   export type UserCreateOrConnectWithoutTenantsInput = {
@@ -13110,6 +13331,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentUpdateManyWithoutUserNestedInput
     refreshToken?: TokenUpdateManyWithoutUserNestedInput
     joinRequests?: JoinRequestUpdateManyWithoutUserNestedInput
+    joinRequestHandled?: JoinRequestUpdateManyWithoutHandledByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTenantsInput = {
@@ -13121,6 +13343,7 @@ export namespace Prisma {
     assignedTasks?: TaskAssigmentUncheckedUpdateManyWithoutUserNestedInput
     refreshToken?: TokenUncheckedUpdateManyWithoutUserNestedInput
     joinRequests?: JoinRequestUncheckedUpdateManyWithoutUserNestedInput
+    joinRequestHandled?: JoinRequestUncheckedUpdateManyWithoutHandledByNestedInput
   }
 
   export type TenantUpsertWithoutMembersInput = {
@@ -13163,6 +13386,7 @@ export namespace Prisma {
     tasksCreated?: TaskCreateNestedManyWithoutCreatedByInput
     assignedTasks?: TaskAssigmentCreateNestedManyWithoutUserInput
     joinRequests?: JoinRequestCreateNestedManyWithoutUserInput
+    joinRequestHandled?: JoinRequestCreateNestedManyWithoutHandledByInput
   }
 
   export type UserUncheckedCreateWithoutRefreshTokenInput = {
@@ -13174,6 +13398,7 @@ export namespace Prisma {
     tasksCreated?: TaskUncheckedCreateNestedManyWithoutCreatedByInput
     assignedTasks?: TaskAssigmentUncheckedCreateNestedManyWithoutUserInput
     joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutUserInput
+    joinRequestHandled?: JoinRequestUncheckedCreateNestedManyWithoutHandledByInput
   }
 
   export type UserCreateOrConnectWithoutRefreshTokenInput = {
@@ -13201,6 +13426,7 @@ export namespace Prisma {
     tasksCreated?: TaskUpdateManyWithoutCreatedByNestedInput
     assignedTasks?: TaskAssigmentUpdateManyWithoutUserNestedInput
     joinRequests?: JoinRequestUpdateManyWithoutUserNestedInput
+    joinRequestHandled?: JoinRequestUpdateManyWithoutHandledByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRefreshTokenInput = {
@@ -13212,6 +13438,7 @@ export namespace Prisma {
     tasksCreated?: TaskUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedTasks?: TaskAssigmentUncheckedUpdateManyWithoutUserNestedInput
     joinRequests?: JoinRequestUncheckedUpdateManyWithoutUserNestedInput
+    joinRequestHandled?: JoinRequestUncheckedUpdateManyWithoutHandledByNestedInput
   }
 
   export type TenantCreateWithoutInvitationsInput = {
@@ -13270,6 +13497,35 @@ export namespace Prisma {
     joinRequests?: JoinRequestUncheckedUpdateManyWithoutTenantNestedInput
   }
 
+  export type UserCreateWithoutJoinRequestHandledInput = {
+    id?: string
+    username: string
+    email: string
+    password: string
+    tenants?: MemberCreateNestedManyWithoutUserInput
+    tasksCreated?: TaskCreateNestedManyWithoutCreatedByInput
+    assignedTasks?: TaskAssigmentCreateNestedManyWithoutUserInput
+    refreshToken?: TokenCreateNestedManyWithoutUserInput
+    joinRequests?: JoinRequestCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutJoinRequestHandledInput = {
+    id?: string
+    username: string
+    email: string
+    password: string
+    tenants?: MemberUncheckedCreateNestedManyWithoutUserInput
+    tasksCreated?: TaskUncheckedCreateNestedManyWithoutCreatedByInput
+    assignedTasks?: TaskAssigmentUncheckedCreateNestedManyWithoutUserInput
+    refreshToken?: TokenUncheckedCreateNestedManyWithoutUserInput
+    joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutJoinRequestHandledInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutJoinRequestHandledInput, UserUncheckedCreateWithoutJoinRequestHandledInput>
+  }
+
   export type TenantCreateWithoutJoinRequestsInput = {
     id?: string
     name: string
@@ -13304,6 +13560,7 @@ export namespace Prisma {
     tasksCreated?: TaskCreateNestedManyWithoutCreatedByInput
     assignedTasks?: TaskAssigmentCreateNestedManyWithoutUserInput
     refreshToken?: TokenCreateNestedManyWithoutUserInput
+    joinRequestHandled?: JoinRequestCreateNestedManyWithoutHandledByInput
   }
 
   export type UserUncheckedCreateWithoutJoinRequestsInput = {
@@ -13315,11 +13572,47 @@ export namespace Prisma {
     tasksCreated?: TaskUncheckedCreateNestedManyWithoutCreatedByInput
     assignedTasks?: TaskAssigmentUncheckedCreateNestedManyWithoutUserInput
     refreshToken?: TokenUncheckedCreateNestedManyWithoutUserInput
+    joinRequestHandled?: JoinRequestUncheckedCreateNestedManyWithoutHandledByInput
   }
 
   export type UserCreateOrConnectWithoutJoinRequestsInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutJoinRequestsInput, UserUncheckedCreateWithoutJoinRequestsInput>
+  }
+
+  export type UserUpsertWithoutJoinRequestHandledInput = {
+    update: XOR<UserUpdateWithoutJoinRequestHandledInput, UserUncheckedUpdateWithoutJoinRequestHandledInput>
+    create: XOR<UserCreateWithoutJoinRequestHandledInput, UserUncheckedCreateWithoutJoinRequestHandledInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutJoinRequestHandledInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutJoinRequestHandledInput, UserUncheckedUpdateWithoutJoinRequestHandledInput>
+  }
+
+  export type UserUpdateWithoutJoinRequestHandledInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    tenants?: MemberUpdateManyWithoutUserNestedInput
+    tasksCreated?: TaskUpdateManyWithoutCreatedByNestedInput
+    assignedTasks?: TaskAssigmentUpdateManyWithoutUserNestedInput
+    refreshToken?: TokenUpdateManyWithoutUserNestedInput
+    joinRequests?: JoinRequestUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutJoinRequestHandledInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    tenants?: MemberUncheckedUpdateManyWithoutUserNestedInput
+    tasksCreated?: TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+    assignedTasks?: TaskAssigmentUncheckedUpdateManyWithoutUserNestedInput
+    refreshToken?: TokenUncheckedUpdateManyWithoutUserNestedInput
+    joinRequests?: JoinRequestUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TenantUpsertWithoutJoinRequestsInput = {
@@ -13373,6 +13666,7 @@ export namespace Prisma {
     tasksCreated?: TaskUpdateManyWithoutCreatedByNestedInput
     assignedTasks?: TaskAssigmentUpdateManyWithoutUserNestedInput
     refreshToken?: TokenUpdateManyWithoutUserNestedInput
+    joinRequestHandled?: JoinRequestUpdateManyWithoutHandledByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutJoinRequestsInput = {
@@ -13384,6 +13678,7 @@ export namespace Prisma {
     tasksCreated?: TaskUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedTasks?: TaskAssigmentUncheckedUpdateManyWithoutUserNestedInput
     refreshToken?: TokenUncheckedUpdateManyWithoutUserNestedInput
+    joinRequestHandled?: JoinRequestUncheckedUpdateManyWithoutHandledByNestedInput
   }
 
   export type MemberCreateManyUserInput = {
@@ -13423,6 +13718,17 @@ export namespace Prisma {
     id?: string
     message?: string | null
     status?: $Enums.JoinRequestStatus
+    tenantId: string
+    createdAt?: Date | string
+    handledAt?: Date | string | null
+    handlerUserId?: string | null
+  }
+
+  export type JoinRequestCreateManyHandledByInput = {
+    id?: string
+    message?: string | null
+    status?: $Enums.JoinRequestStatus
+    userId: string
     tenantId: string
     createdAt?: Date | string
     handledAt?: Date | string | null
@@ -13535,6 +13841,7 @@ export namespace Prisma {
     status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    handledBy?: UserUpdateOneWithoutJoinRequestHandledNestedInput
     tenant?: TenantUpdateOneRequiredWithoutJoinRequestsNestedInput
   }
 
@@ -13545,12 +13852,44 @@ export namespace Prisma {
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    handlerUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type JoinRequestUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     message?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
+    tenantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    handlerUserId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type JoinRequestUpdateWithoutHandledByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tenant?: TenantUpdateOneRequiredWithoutJoinRequestsNestedInput
+    user?: UserUpdateOneRequiredWithoutJoinRequestsNestedInput
+  }
+
+  export type JoinRequestUncheckedUpdateWithoutHandledByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
+    userId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type JoinRequestUncheckedUpdateManyWithoutHandledByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
+    userId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -13592,6 +13931,7 @@ export namespace Prisma {
     userId: string
     createdAt?: Date | string
     handledAt?: Date | string | null
+    handlerUserId?: string | null
   }
 
   export type MemberUpdateWithoutTenantInput = {
@@ -13689,6 +14029,7 @@ export namespace Prisma {
     status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    handledBy?: UserUpdateOneWithoutJoinRequestHandledNestedInput
     user?: UserUpdateOneRequiredWithoutJoinRequestsNestedInput
   }
 
@@ -13699,6 +14040,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    handlerUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type JoinRequestUncheckedUpdateManyWithoutTenantInput = {
@@ -13708,6 +14050,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    handlerUserId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TaskAssigmentCreateManyTaskInput = {

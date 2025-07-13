@@ -206,12 +206,22 @@ const checkJoinRequest = async (requestId) => {
 };
 
 const sendJoinRequest = async (userId, tenantId) => {
-    await prismaClient.joinRequest.create({
+    const result = await prismaClient.joinRequest.create({
         data: {
             userId: userId,
             tenantId: tenantId,
         },
+        include: {
+            user: true,
+        },
     });
+
+    result.createdAt = result.createdAt.toISOString();
+    if (result.handledAt) {
+        result.handledAt = result.handledAt.toISOString();
+    }
+
+    return result;
 };
 
 export {

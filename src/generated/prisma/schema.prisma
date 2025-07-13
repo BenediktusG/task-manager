@@ -45,11 +45,12 @@ model User {
   email    String @unique
   password String
 
-  tenants       Member[]
-  tasksCreated  Task[]
-  assignedTasks TaskAssigment[]
-  refreshToken  Token[]
-  joinRequests  JoinRequest[]
+  tenants            Member[]
+  tasksCreated       Task[]
+  assignedTasks      TaskAssigment[]
+  refreshToken       Token[]
+  joinRequests       JoinRequest[]   @relation("UserJoinRequests")
+  joinRequestHandled JoinRequest[]   @relation("HandledJoinRequests")
 }
 
 model Tenant {
@@ -132,14 +133,16 @@ model Invitation {
 }
 
 model JoinRequest {
-  id        String            @id @default(uuid())
-  message   String?           @db.Text
-  status    JoinRequestStatus @default(PENDING)
-  userId    String
-  tenantId  String
-  createdAt DateTime          @default(now())
-  handledAt DateTime?
+  id            String            @id @default(uuid())
+  message       String?           @db.Text
+  status        JoinRequestStatus @default(PENDING)
+  userId        String
+  tenantId      String
+  createdAt     DateTime          @default(now())
+  handledAt     DateTime?
+  handlerUserId String?
 
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  handledBy User?  @relation("HandledJoinRequests", fields: [handlerUserId], references: [id], onDelete: NoAction)
+  tenant    Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User   @relation("UserJoinRequests", fields: [userId], references: [id], onDelete: Cascade)
 }

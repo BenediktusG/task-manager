@@ -1534,6 +1534,9 @@ paths:
                       requestMessage: Hi i'm your project manager, i need to join this tenant to manage this project
                       tenantId: b702d1e2-1727-4268-8854-e995f2cc50c4
                       userId: 0febb104-7d21-4e61-9f5c-c7f4456e83a9
+                      handledBy: 0febb104-7d21-4e61-9f5c-c7f4456e83a9
+                      createdAt: 2023-10-01T00:00:00Z
+                      handledAt: 2023-10-01T00:00:00Z
         401:
           description: Failed to get a detailed information of a join request due to invalid or missing access token
           content:
@@ -2008,20 +2011,22 @@ components:
         data:
           status: accepted
           requestMessage: I want to join this tenant because I am working on a project with this team.
-          responseMessage: Welcome to the team!
           tenantId: b702d1e2-1727-4268-8854-e995f2cc50c4
           userId: 0febb104-7d21-4e61-9f5c-c7f4456e83a9
           handledBy: 5797099c-58ea-440e-bee8-1624301239da
+          createdAt: 2023-10-01T00:00:00Z
+          handledAt: 2023-10-01T00:00:00Z
     rejectedScenario:
       value:
         success: true
         data:
           status: rejected
           requestMessage: I want to join this tenant because I am really interest with this project
-          responseMessage: Thank you for your interest, but we only accept our backend team in this tenant
           tenantId: b702d1e2-1727-4268-8854-e995f2cc50c4
           userId: 0febb104-7d21-4e61-9f5c-c7f4456e83a9
           handledBy: 5797099c-58ea-440e-bee8-1624301239da
+          createdAt: 2023-10-01T00:00:00Z
+          handledAt: 2023-10-01T00:00:00Z
     getTaskSuccessResponse:
       value:
         success: true

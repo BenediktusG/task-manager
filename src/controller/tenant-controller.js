@@ -176,6 +176,18 @@ const joinTenant = async (req, res, next) => {
     }
 };
 
+const getAllJoinRequests = async (req, res, next) => {
+    try {
+        const result = await tenantService.getAllJoinRequests(req.params.tenantId, req.user);
+        res.status(200).json({
+            success: true,
+            data: result,
+        });
+    } catch (e) {
+        next(e);
+    }
+};
+
 export default {
     create,
     getAssociatedTenants,
@@ -191,4 +203,5 @@ export default {
     deleteMember,
     leaveTenant,
     joinTenant,
+    getAllJoinRequests,
 };

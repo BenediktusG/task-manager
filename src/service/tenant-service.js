@@ -670,6 +670,69 @@ const joinTenant = async (request, tenantId, user) => {
     return result.id;
 };  
 
+const getAllJoinRequests = async (tenantId, user) => {
+    const tenant = await prismaClient.tenant.findUnique({
+        where: {
+            id: tenantId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!tenant) {
+        throw new NotFoundError('Failed to do the action because of invalid Tenant ID', 'NOT_FOUND_TENANT');
+    }
+
+    const member = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: user.id,
+                tenantId: tenantId,
+            }
+        },
+        select: {
+            role: true,
+        },
+    });
+    if (!member) {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    if (member.role !== 'ADMIN' && member.role !== 'SUPER_ADMIN') {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    const result = await prismaClient.joinRequest.findMany({
+        where: {
+            tenantId: tenantId,
+        },
+        select: {
+            id: true,
+            message: true,
+            status: true,
+            user: {
+                select: {
+                    id: true,
+                    email: true,
+                    username: true,
+                },
+            },
+        },
+    });
+
+    result.map((request) => {
+        request.requestId = request.id;
+        request.requestMessage = request.message;
+        request.user.userId = request.user.id;
+        delete request.id;
+        delete request.message;
+        delete request.user.id;
+        return request;
+    });
+    return result;
+};
+
 export default {
     create,
     getAssociatedTenants,
@@ -685,4 +748,5 @@ export default {
     deleteMember,
     leaveTenant,
     joinTenant,
+    getAllJoinRequests,
 };

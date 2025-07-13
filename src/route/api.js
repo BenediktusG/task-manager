@@ -30,3 +30,4 @@ userRouter.delete('/tenants/:tenantId/members/me', tenantController.leaveTenant)
 userRouter.patch('/tenants/:tenantId/members/:userId', tenantController.editMemberRole);
 userRouter.delete('/tenants/:tenantId/members/:userId', tenantController.deleteMember);
 userRouter.post('/tenants/:tenantId/join', tenantController.joinTenant);
+userRouter.get('/tenants/:tenantId/join-requests', tenantController.getAllJoinRequests);

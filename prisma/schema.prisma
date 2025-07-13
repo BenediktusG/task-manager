@@ -49,7 +49,8 @@ model User {
   tasksCreated Task[]
   assignedTasks TaskAssigment[]
   refreshToken Token[]
-  joinRequests JoinRequest[]
+  joinRequests JoinRequest[] @relation("UserJoinRequests")
+  joinRequestHandled JoinRequest[] @relation("HandledJoinRequests")
 }
 
 model Tenant {
@@ -140,7 +141,9 @@ model JoinRequest {
   tenantId String
   createdAt DateTime @default(now())
   handledAt DateTime?
+  handlerUserId String?
 
+  handledBy User? @relation("HandledJoinRequests", fields: [handlerUserId], references: [id], onDelete: NoAction)
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation("UserJoinRequests", fields: [userId], references: [id], onDelete: Cascade)
 }

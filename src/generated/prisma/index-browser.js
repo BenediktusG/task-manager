@@ -186,7 +186,8 @@ exports.Prisma.JoinRequestScalarFieldEnum = {
   userId: 'userId',
   tenantId: 'tenantId',
   createdAt: 'createdAt',
-  handledAt: 'handledAt'
+  handledAt: 'handledAt',
+  handlerUserId: 'handlerUserId'
 };
 
 exports.Prisma.SortOrder = {
@@ -248,7 +249,8 @@ exports.Prisma.JoinRequestOrderByRelevanceFieldEnum = {
   id: 'id',
   message: 'message',
   userId: 'userId',
-  tenantId: 'tenantId'
+  tenantId: 'tenantId',
+  handlerUserId: 'handlerUserId'
 };
 exports.TaskStatus = exports.$Enums.TaskStatus = {
   NOT_STARTED: 'NOT_STARTED',
