@@ -1319,7 +1319,7 @@ paths:
                   type: string
                   example: I want to join this tenant because I am working on a project with this team.
       responses:
-        200:
+        201:
           description: Success sent join request
           content:
             application/json:
@@ -1331,7 +1331,6 @@ paths:
                     success: true
                     data: 
                       requestId: d3b07384-d9a5-4f7f-97a5-d4e85f06c7b7
-                      message: Join request sent successfully
         401:
           description: Failed to sent join request due to invalid or missing access token
           content:
@@ -1393,7 +1392,7 @@ paths:
                         user:
                           userId: baf19f6d-cc60-406c-bd06-c0280c042f12
                           email: jonhD@mail.com
-                          fullName: Jonh Doe
+                          username: Jonh Doe
                       - requestId: 810a8535-a48b-4670-acfc-66b985c473eb
                         requestMessage: I want to join this tenant because I am really interest with this project
                         responseMessage: Thank you for your interest, but we only accept our backend team in this tenant
@@ -1401,7 +1400,7 @@ paths:
                         user:
                           userId: 2723cb28-1853-495b-8775-3510c5050865
                           email: RickRolll@yahoo.com
-                          fullName: Rick San Roll
+                          username: Rick San Roll
         401:
           description: Failed to get all join requests of a tenant due to invalid or missing access token
           content:

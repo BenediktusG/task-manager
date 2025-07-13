@@ -48,6 +48,11 @@ export type Token = $Result.DefaultSelection<Prisma.$TokenPayload>
  * 
  */
 export type Invitation = $Result.DefaultSelection<Prisma.$InvitationPayload>
+/**
+ * Model JoinRequest
+ * 
+ */
+export type JoinRequest = $Result.DefaultSelection<Prisma.$JoinRequestPayload>
 
 /**
  * Enums
@@ -80,6 +85,15 @@ export const InvitationStatus: {
 
 export type InvitationStatus = (typeof InvitationStatus)[keyof typeof InvitationStatus]
 
+
+export const JoinRequestStatus: {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED'
+};
+
+export type JoinRequestStatus = (typeof JoinRequestStatus)[keyof typeof JoinRequestStatus]
+
 }
 
 export type TaskStatus = $Enums.TaskStatus
@@ -93,6 +107,10 @@ export const Role: typeof $Enums.Role
 export type InvitationStatus = $Enums.InvitationStatus
 
 export const InvitationStatus: typeof $Enums.InvitationStatus
+
+export type JoinRequestStatus = $Enums.JoinRequestStatus
+
+export const JoinRequestStatus: typeof $Enums.JoinRequestStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -288,6 +306,16 @@ export class PrismaClient<
     * ```
     */
   get invitation(): Prisma.InvitationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.joinRequest`: Exposes CRUD operations for the **JoinRequest** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more JoinRequests
+    * const joinRequests = await prisma.joinRequest.findMany()
+    * ```
+    */
+  get joinRequest(): Prisma.JoinRequestDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -734,7 +762,8 @@ export namespace Prisma {
     TaskAssigment: 'TaskAssigment',
     Member: 'Member',
     Token: 'Token',
-    Invitation: 'Invitation'
+    Invitation: 'Invitation',
+    JoinRequest: 'JoinRequest'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -753,7 +782,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "tenant" | "task" | "taskAssigment" | "member" | "token" | "invitation"
+      modelProps: "user" | "tenant" | "task" | "taskAssigment" | "member" | "token" | "invitation" | "joinRequest"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1219,6 +1248,72 @@ export namespace Prisma {
           }
         }
       }
+      JoinRequest: {
+        payload: Prisma.$JoinRequestPayload<ExtArgs>
+        fields: Prisma.JoinRequestFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.JoinRequestFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JoinRequestPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.JoinRequestFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JoinRequestPayload>
+          }
+          findFirst: {
+            args: Prisma.JoinRequestFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JoinRequestPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.JoinRequestFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JoinRequestPayload>
+          }
+          findMany: {
+            args: Prisma.JoinRequestFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JoinRequestPayload>[]
+          }
+          create: {
+            args: Prisma.JoinRequestCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JoinRequestPayload>
+          }
+          createMany: {
+            args: Prisma.JoinRequestCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.JoinRequestDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JoinRequestPayload>
+          }
+          update: {
+            args: Prisma.JoinRequestUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JoinRequestPayload>
+          }
+          deleteMany: {
+            args: Prisma.JoinRequestDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.JoinRequestUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.JoinRequestUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JoinRequestPayload>
+          }
+          aggregate: {
+            args: Prisma.JoinRequestAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateJoinRequest>
+          }
+          groupBy: {
+            args: Prisma.JoinRequestGroupByArgs<ExtArgs>
+            result: $Utils.Optional<JoinRequestGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.JoinRequestCountArgs<ExtArgs>
+            result: $Utils.Optional<JoinRequestCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1310,6 +1405,7 @@ export namespace Prisma {
     member?: MemberOmit
     token?: TokenOmit
     invitation?: InvitationOmit
+    joinRequest?: JoinRequestOmit
   }
 
   /* Types for Logging */
@@ -1408,6 +1504,7 @@ export namespace Prisma {
     tasksCreated: number
     assignedTasks: number
     refreshToken: number
+    joinRequests: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1415,6 +1512,7 @@ export namespace Prisma {
     tasksCreated?: boolean | UserCountOutputTypeCountTasksCreatedArgs
     assignedTasks?: boolean | UserCountOutputTypeCountAssignedTasksArgs
     refreshToken?: boolean | UserCountOutputTypeCountRefreshTokenArgs
+    joinRequests?: boolean | UserCountOutputTypeCountJoinRequestsArgs
   }
 
   // Custom InputTypes
@@ -1456,6 +1554,13 @@ export namespace Prisma {
     where?: TokenWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountJoinRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JoinRequestWhereInput
+  }
+
 
   /**
    * Count Type TenantCountOutputType
@@ -1465,12 +1570,14 @@ export namespace Prisma {
     members: number
     tasks: number
     invitations: number
+    joinRequests: number
   }
 
   export type TenantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     members?: boolean | TenantCountOutputTypeCountMembersArgs
     tasks?: boolean | TenantCountOutputTypeCountTasksArgs
     invitations?: boolean | TenantCountOutputTypeCountInvitationsArgs
+    joinRequests?: boolean | TenantCountOutputTypeCountJoinRequestsArgs
   }
 
   // Custom InputTypes
@@ -1503,6 +1610,13 @@ export namespace Prisma {
    */
   export type TenantCountOutputTypeCountInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: InvitationWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountJoinRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JoinRequestWhereInput
   }
 
 
@@ -1701,6 +1815,7 @@ export namespace Prisma {
     tasksCreated?: boolean | User$tasksCreatedArgs<ExtArgs>
     assignedTasks?: boolean | User$assignedTasksArgs<ExtArgs>
     refreshToken?: boolean | User$refreshTokenArgs<ExtArgs>
+    joinRequests?: boolean | User$joinRequestsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1719,6 +1834,7 @@ export namespace Prisma {
     tasksCreated?: boolean | User$tasksCreatedArgs<ExtArgs>
     assignedTasks?: boolean | User$assignedTasksArgs<ExtArgs>
     refreshToken?: boolean | User$refreshTokenArgs<ExtArgs>
+    joinRequests?: boolean | User$joinRequestsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -1729,6 +1845,7 @@ export namespace Prisma {
       tasksCreated: Prisma.$TaskPayload<ExtArgs>[]
       assignedTasks: Prisma.$TaskAssigmentPayload<ExtArgs>[]
       refreshToken: Prisma.$TokenPayload<ExtArgs>[]
+      joinRequests: Prisma.$JoinRequestPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2079,6 +2196,7 @@ export namespace Prisma {
     tasksCreated<T extends User$tasksCreatedArgs<ExtArgs> = {}>(args?: Subset<T, User$tasksCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignedTasks<T extends User$assignedTasksArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedTasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaskAssigmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     refreshToken<T extends User$refreshTokenArgs<ExtArgs> = {}>(args?: Subset<T, User$refreshTokenArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    joinRequests<T extends User$joinRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$joinRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JoinRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2551,6 +2669,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.joinRequests
+   */
+  export type User$joinRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JoinRequest
+     */
+    select?: JoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JoinRequest
+     */
+    omit?: JoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JoinRequestInclude<ExtArgs> | null
+    where?: JoinRequestWhereInput
+    orderBy?: JoinRequestOrderByWithRelationInput | JoinRequestOrderByWithRelationInput[]
+    cursor?: JoinRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JoinRequestScalarFieldEnum | JoinRequestScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2728,6 +2870,7 @@ export namespace Prisma {
     members?: boolean | Tenant$membersArgs<ExtArgs>
     tasks?: boolean | Tenant$tasksArgs<ExtArgs>
     invitations?: boolean | Tenant$invitationsArgs<ExtArgs>
+    joinRequests?: boolean | Tenant$joinRequestsArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tenant"]>
 
@@ -2745,6 +2888,7 @@ export namespace Prisma {
     members?: boolean | Tenant$membersArgs<ExtArgs>
     tasks?: boolean | Tenant$tasksArgs<ExtArgs>
     invitations?: boolean | Tenant$invitationsArgs<ExtArgs>
+    joinRequests?: boolean | Tenant$joinRequestsArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -2754,6 +2898,7 @@ export namespace Prisma {
       members: Prisma.$MemberPayload<ExtArgs>[]
       tasks: Prisma.$TaskPayload<ExtArgs>[]
       invitations: Prisma.$InvitationPayload<ExtArgs>[]
+      joinRequests: Prisma.$JoinRequestPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3103,6 +3248,7 @@ export namespace Prisma {
     members<T extends Tenant$membersArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tasks<T extends Tenant$tasksArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     invitations<T extends Tenant$invitationsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    joinRequests<T extends Tenant$joinRequestsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$joinRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JoinRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3548,6 +3694,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: InvitationScalarFieldEnum | InvitationScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.joinRequests
+   */
+  export type Tenant$joinRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JoinRequest
+     */
+    select?: JoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JoinRequest
+     */
+    omit?: JoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JoinRequestInclude<ExtArgs> | null
+    where?: JoinRequestWhereInput
+    orderBy?: JoinRequestOrderByWithRelationInput | JoinRequestOrderByWithRelationInput[]
+    cursor?: JoinRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JoinRequestScalarFieldEnum | JoinRequestScalarFieldEnum[]
   }
 
   /**
@@ -8383,6 +8553,961 @@ export namespace Prisma {
 
 
   /**
+   * Model JoinRequest
+   */
+
+  export type AggregateJoinRequest = {
+    _count: JoinRequestCountAggregateOutputType | null
+    _min: JoinRequestMinAggregateOutputType | null
+    _max: JoinRequestMaxAggregateOutputType | null
+  }
+
+  export type JoinRequestMinAggregateOutputType = {
+    id: string | null
+    message: string | null
+    status: $Enums.JoinRequestStatus | null
+    userId: string | null
+    tenantId: string | null
+    createdAt: Date | null
+    handledAt: Date | null
+  }
+
+  export type JoinRequestMaxAggregateOutputType = {
+    id: string | null
+    message: string | null
+    status: $Enums.JoinRequestStatus | null
+    userId: string | null
+    tenantId: string | null
+    createdAt: Date | null
+    handledAt: Date | null
+  }
+
+  export type JoinRequestCountAggregateOutputType = {
+    id: number
+    message: number
+    status: number
+    userId: number
+    tenantId: number
+    createdAt: number
+    handledAt: number
+    _all: number
+  }
+
+
+  export type JoinRequestMinAggregateInputType = {
+    id?: true
+    message?: true
+    status?: true
+    userId?: true
+    tenantId?: true
+    createdAt?: true
+    handledAt?: true
+  }
+
+  export type JoinRequestMaxAggregateInputType = {
+    id?: true
+    message?: true
+    status?: true
+    userId?: true
+    tenantId?: true
+    createdAt?: true
+    handledAt?: true
+  }
+
+  export type JoinRequestCountAggregateInputType = {
+    id?: true
+    message?: true
+    status?: true
+    userId?: true
+    tenantId?: true
+    createdAt?: true
+    handledAt?: true
+    _all?: true
+  }
+
+  export type JoinRequestAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JoinRequest to aggregate.
+     */
+    where?: JoinRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JoinRequests to fetch.
+     */
+    orderBy?: JoinRequestOrderByWithRelationInput | JoinRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: JoinRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JoinRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JoinRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned JoinRequests
+    **/
+    _count?: true | JoinRequestCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: JoinRequestMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: JoinRequestMaxAggregateInputType
+  }
+
+  export type GetJoinRequestAggregateType<T extends JoinRequestAggregateArgs> = {
+        [P in keyof T & keyof AggregateJoinRequest]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateJoinRequest[P]>
+      : GetScalarType<T[P], AggregateJoinRequest[P]>
+  }
+
+
+
+
+  export type JoinRequestGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JoinRequestWhereInput
+    orderBy?: JoinRequestOrderByWithAggregationInput | JoinRequestOrderByWithAggregationInput[]
+    by: JoinRequestScalarFieldEnum[] | JoinRequestScalarFieldEnum
+    having?: JoinRequestScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: JoinRequestCountAggregateInputType | true
+    _min?: JoinRequestMinAggregateInputType
+    _max?: JoinRequestMaxAggregateInputType
+  }
+
+  export type JoinRequestGroupByOutputType = {
+    id: string
+    message: string | null
+    status: $Enums.JoinRequestStatus
+    userId: string
+    tenantId: string
+    createdAt: Date
+    handledAt: Date | null
+    _count: JoinRequestCountAggregateOutputType | null
+    _min: JoinRequestMinAggregateOutputType | null
+    _max: JoinRequestMaxAggregateOutputType | null
+  }
+
+  type GetJoinRequestGroupByPayload<T extends JoinRequestGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<JoinRequestGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof JoinRequestGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], JoinRequestGroupByOutputType[P]>
+            : GetScalarType<T[P], JoinRequestGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type JoinRequestSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    message?: boolean
+    status?: boolean
+    userId?: boolean
+    tenantId?: boolean
+    createdAt?: boolean
+    handledAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["joinRequest"]>
+
+
+
+  export type JoinRequestSelectScalar = {
+    id?: boolean
+    message?: boolean
+    status?: boolean
+    userId?: boolean
+    tenantId?: boolean
+    createdAt?: boolean
+    handledAt?: boolean
+  }
+
+  export type JoinRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "message" | "status" | "userId" | "tenantId" | "createdAt" | "handledAt", ExtArgs["result"]["joinRequest"]>
+  export type JoinRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $JoinRequestPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "JoinRequest"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      message: string | null
+      status: $Enums.JoinRequestStatus
+      userId: string
+      tenantId: string
+      createdAt: Date
+      handledAt: Date | null
+    }, ExtArgs["result"]["joinRequest"]>
+    composites: {}
+  }
+
+  type JoinRequestGetPayload<S extends boolean | null | undefined | JoinRequestDefaultArgs> = $Result.GetResult<Prisma.$JoinRequestPayload, S>
+
+  type JoinRequestCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<JoinRequestFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: JoinRequestCountAggregateInputType | true
+    }
+
+  export interface JoinRequestDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['JoinRequest'], meta: { name: 'JoinRequest' } }
+    /**
+     * Find zero or one JoinRequest that matches the filter.
+     * @param {JoinRequestFindUniqueArgs} args - Arguments to find a JoinRequest
+     * @example
+     * // Get one JoinRequest
+     * const joinRequest = await prisma.joinRequest.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends JoinRequestFindUniqueArgs>(args: SelectSubset<T, JoinRequestFindUniqueArgs<ExtArgs>>): Prisma__JoinRequestClient<$Result.GetResult<Prisma.$JoinRequestPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one JoinRequest that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {JoinRequestFindUniqueOrThrowArgs} args - Arguments to find a JoinRequest
+     * @example
+     * // Get one JoinRequest
+     * const joinRequest = await prisma.joinRequest.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends JoinRequestFindUniqueOrThrowArgs>(args: SelectSubset<T, JoinRequestFindUniqueOrThrowArgs<ExtArgs>>): Prisma__JoinRequestClient<$Result.GetResult<Prisma.$JoinRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JoinRequest that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JoinRequestFindFirstArgs} args - Arguments to find a JoinRequest
+     * @example
+     * // Get one JoinRequest
+     * const joinRequest = await prisma.joinRequest.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends JoinRequestFindFirstArgs>(args?: SelectSubset<T, JoinRequestFindFirstArgs<ExtArgs>>): Prisma__JoinRequestClient<$Result.GetResult<Prisma.$JoinRequestPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JoinRequest that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JoinRequestFindFirstOrThrowArgs} args - Arguments to find a JoinRequest
+     * @example
+     * // Get one JoinRequest
+     * const joinRequest = await prisma.joinRequest.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends JoinRequestFindFirstOrThrowArgs>(args?: SelectSubset<T, JoinRequestFindFirstOrThrowArgs<ExtArgs>>): Prisma__JoinRequestClient<$Result.GetResult<Prisma.$JoinRequestPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more JoinRequests that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JoinRequestFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all JoinRequests
+     * const joinRequests = await prisma.joinRequest.findMany()
+     * 
+     * // Get first 10 JoinRequests
+     * const joinRequests = await prisma.joinRequest.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const joinRequestWithIdOnly = await prisma.joinRequest.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends JoinRequestFindManyArgs>(args?: SelectSubset<T, JoinRequestFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JoinRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a JoinRequest.
+     * @param {JoinRequestCreateArgs} args - Arguments to create a JoinRequest.
+     * @example
+     * // Create one JoinRequest
+     * const JoinRequest = await prisma.joinRequest.create({
+     *   data: {
+     *     // ... data to create a JoinRequest
+     *   }
+     * })
+     * 
+     */
+    create<T extends JoinRequestCreateArgs>(args: SelectSubset<T, JoinRequestCreateArgs<ExtArgs>>): Prisma__JoinRequestClient<$Result.GetResult<Prisma.$JoinRequestPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many JoinRequests.
+     * @param {JoinRequestCreateManyArgs} args - Arguments to create many JoinRequests.
+     * @example
+     * // Create many JoinRequests
+     * const joinRequest = await prisma.joinRequest.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends JoinRequestCreateManyArgs>(args?: SelectSubset<T, JoinRequestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a JoinRequest.
+     * @param {JoinRequestDeleteArgs} args - Arguments to delete one JoinRequest.
+     * @example
+     * // Delete one JoinRequest
+     * const JoinRequest = await prisma.joinRequest.delete({
+     *   where: {
+     *     // ... filter to delete one JoinRequest
+     *   }
+     * })
+     * 
+     */
+    delete<T extends JoinRequestDeleteArgs>(args: SelectSubset<T, JoinRequestDeleteArgs<ExtArgs>>): Prisma__JoinRequestClient<$Result.GetResult<Prisma.$JoinRequestPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one JoinRequest.
+     * @param {JoinRequestUpdateArgs} args - Arguments to update one JoinRequest.
+     * @example
+     * // Update one JoinRequest
+     * const joinRequest = await prisma.joinRequest.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends JoinRequestUpdateArgs>(args: SelectSubset<T, JoinRequestUpdateArgs<ExtArgs>>): Prisma__JoinRequestClient<$Result.GetResult<Prisma.$JoinRequestPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more JoinRequests.
+     * @param {JoinRequestDeleteManyArgs} args - Arguments to filter JoinRequests to delete.
+     * @example
+     * // Delete a few JoinRequests
+     * const { count } = await prisma.joinRequest.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends JoinRequestDeleteManyArgs>(args?: SelectSubset<T, JoinRequestDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more JoinRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JoinRequestUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many JoinRequests
+     * const joinRequest = await prisma.joinRequest.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends JoinRequestUpdateManyArgs>(args: SelectSubset<T, JoinRequestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one JoinRequest.
+     * @param {JoinRequestUpsertArgs} args - Arguments to update or create a JoinRequest.
+     * @example
+     * // Update or create a JoinRequest
+     * const joinRequest = await prisma.joinRequest.upsert({
+     *   create: {
+     *     // ... data to create a JoinRequest
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the JoinRequest we want to update
+     *   }
+     * })
+     */
+    upsert<T extends JoinRequestUpsertArgs>(args: SelectSubset<T, JoinRequestUpsertArgs<ExtArgs>>): Prisma__JoinRequestClient<$Result.GetResult<Prisma.$JoinRequestPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of JoinRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JoinRequestCountArgs} args - Arguments to filter JoinRequests to count.
+     * @example
+     * // Count the number of JoinRequests
+     * const count = await prisma.joinRequest.count({
+     *   where: {
+     *     // ... the filter for the JoinRequests we want to count
+     *   }
+     * })
+    **/
+    count<T extends JoinRequestCountArgs>(
+      args?: Subset<T, JoinRequestCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], JoinRequestCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a JoinRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JoinRequestAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends JoinRequestAggregateArgs>(args: Subset<T, JoinRequestAggregateArgs>): Prisma.PrismaPromise<GetJoinRequestAggregateType<T>>
+
+    /**
+     * Group by JoinRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JoinRequestGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends JoinRequestGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: JoinRequestGroupByArgs['orderBy'] }
+        : { orderBy?: JoinRequestGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, JoinRequestGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetJoinRequestGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the JoinRequest model
+   */
+  readonly fields: JoinRequestFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for JoinRequest.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__JoinRequestClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the JoinRequest model
+   */
+  interface JoinRequestFieldRefs {
+    readonly id: FieldRef<"JoinRequest", 'String'>
+    readonly message: FieldRef<"JoinRequest", 'String'>
+    readonly status: FieldRef<"JoinRequest", 'JoinRequestStatus'>
+    readonly userId: FieldRef<"JoinRequest", 'String'>
+    readonly tenantId: FieldRef<"JoinRequest", 'String'>
+    readonly createdAt: FieldRef<"JoinRequest", 'DateTime'>
+    readonly handledAt: FieldRef<"JoinRequest", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * JoinRequest findUnique
+   */
+  export type JoinRequestFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JoinRequest
+     */
+    select?: JoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JoinRequest
+     */
+    omit?: JoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JoinRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which JoinRequest to fetch.
+     */
+    where: JoinRequestWhereUniqueInput
+  }
+
+  /**
+   * JoinRequest findUniqueOrThrow
+   */
+  export type JoinRequestFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JoinRequest
+     */
+    select?: JoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JoinRequest
+     */
+    omit?: JoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JoinRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which JoinRequest to fetch.
+     */
+    where: JoinRequestWhereUniqueInput
+  }
+
+  /**
+   * JoinRequest findFirst
+   */
+  export type JoinRequestFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JoinRequest
+     */
+    select?: JoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JoinRequest
+     */
+    omit?: JoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JoinRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which JoinRequest to fetch.
+     */
+    where?: JoinRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JoinRequests to fetch.
+     */
+    orderBy?: JoinRequestOrderByWithRelationInput | JoinRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JoinRequests.
+     */
+    cursor?: JoinRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JoinRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JoinRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JoinRequests.
+     */
+    distinct?: JoinRequestScalarFieldEnum | JoinRequestScalarFieldEnum[]
+  }
+
+  /**
+   * JoinRequest findFirstOrThrow
+   */
+  export type JoinRequestFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JoinRequest
+     */
+    select?: JoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JoinRequest
+     */
+    omit?: JoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JoinRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which JoinRequest to fetch.
+     */
+    where?: JoinRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JoinRequests to fetch.
+     */
+    orderBy?: JoinRequestOrderByWithRelationInput | JoinRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JoinRequests.
+     */
+    cursor?: JoinRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JoinRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JoinRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JoinRequests.
+     */
+    distinct?: JoinRequestScalarFieldEnum | JoinRequestScalarFieldEnum[]
+  }
+
+  /**
+   * JoinRequest findMany
+   */
+  export type JoinRequestFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JoinRequest
+     */
+    select?: JoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JoinRequest
+     */
+    omit?: JoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JoinRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which JoinRequests to fetch.
+     */
+    where?: JoinRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JoinRequests to fetch.
+     */
+    orderBy?: JoinRequestOrderByWithRelationInput | JoinRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing JoinRequests.
+     */
+    cursor?: JoinRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JoinRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JoinRequests.
+     */
+    skip?: number
+    distinct?: JoinRequestScalarFieldEnum | JoinRequestScalarFieldEnum[]
+  }
+
+  /**
+   * JoinRequest create
+   */
+  export type JoinRequestCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JoinRequest
+     */
+    select?: JoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JoinRequest
+     */
+    omit?: JoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JoinRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to create a JoinRequest.
+     */
+    data: XOR<JoinRequestCreateInput, JoinRequestUncheckedCreateInput>
+  }
+
+  /**
+   * JoinRequest createMany
+   */
+  export type JoinRequestCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many JoinRequests.
+     */
+    data: JoinRequestCreateManyInput | JoinRequestCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * JoinRequest update
+   */
+  export type JoinRequestUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JoinRequest
+     */
+    select?: JoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JoinRequest
+     */
+    omit?: JoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JoinRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to update a JoinRequest.
+     */
+    data: XOR<JoinRequestUpdateInput, JoinRequestUncheckedUpdateInput>
+    /**
+     * Choose, which JoinRequest to update.
+     */
+    where: JoinRequestWhereUniqueInput
+  }
+
+  /**
+   * JoinRequest updateMany
+   */
+  export type JoinRequestUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update JoinRequests.
+     */
+    data: XOR<JoinRequestUpdateManyMutationInput, JoinRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which JoinRequests to update
+     */
+    where?: JoinRequestWhereInput
+    /**
+     * Limit how many JoinRequests to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * JoinRequest upsert
+   */
+  export type JoinRequestUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JoinRequest
+     */
+    select?: JoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JoinRequest
+     */
+    omit?: JoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JoinRequestInclude<ExtArgs> | null
+    /**
+     * The filter to search for the JoinRequest to update in case it exists.
+     */
+    where: JoinRequestWhereUniqueInput
+    /**
+     * In case the JoinRequest found by the `where` argument doesn't exist, create a new JoinRequest with this data.
+     */
+    create: XOR<JoinRequestCreateInput, JoinRequestUncheckedCreateInput>
+    /**
+     * In case the JoinRequest was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<JoinRequestUpdateInput, JoinRequestUncheckedUpdateInput>
+  }
+
+  /**
+   * JoinRequest delete
+   */
+  export type JoinRequestDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JoinRequest
+     */
+    select?: JoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JoinRequest
+     */
+    omit?: JoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JoinRequestInclude<ExtArgs> | null
+    /**
+     * Filter which JoinRequest to delete.
+     */
+    where: JoinRequestWhereUniqueInput
+  }
+
+  /**
+   * JoinRequest deleteMany
+   */
+  export type JoinRequestDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JoinRequests to delete
+     */
+    where?: JoinRequestWhereInput
+    /**
+     * Limit how many JoinRequests to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * JoinRequest without action
+   */
+  export type JoinRequestDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JoinRequest
+     */
+    select?: JoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JoinRequest
+     */
+    omit?: JoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JoinRequestInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -8479,6 +9604,19 @@ export namespace Prisma {
   export type InvitationScalarFieldEnum = (typeof InvitationScalarFieldEnum)[keyof typeof InvitationScalarFieldEnum]
 
 
+  export const JoinRequestScalarFieldEnum: {
+    id: 'id',
+    message: 'message',
+    status: 'status',
+    userId: 'userId',
+    tenantId: 'tenantId',
+    createdAt: 'createdAt',
+    handledAt: 'handledAt'
+  };
+
+  export type JoinRequestScalarFieldEnum = (typeof JoinRequestScalarFieldEnum)[keyof typeof JoinRequestScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -8561,6 +9699,16 @@ export namespace Prisma {
   export type InvitationOrderByRelevanceFieldEnum = (typeof InvitationOrderByRelevanceFieldEnum)[keyof typeof InvitationOrderByRelevanceFieldEnum]
 
 
+  export const JoinRequestOrderByRelevanceFieldEnum: {
+    id: 'id',
+    message: 'message',
+    userId: 'userId',
+    tenantId: 'tenantId'
+  };
+
+  export type JoinRequestOrderByRelevanceFieldEnum = (typeof JoinRequestOrderByRelevanceFieldEnum)[keyof typeof JoinRequestOrderByRelevanceFieldEnum]
+
+
   /**
    * Field references
    */
@@ -8616,6 +9764,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'JoinRequestStatus'
+   */
+  export type EnumJoinRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JoinRequestStatus'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -8637,6 +9792,7 @@ export namespace Prisma {
     tasksCreated?: TaskListRelationFilter
     assignedTasks?: TaskAssigmentListRelationFilter
     refreshToken?: TokenListRelationFilter
+    joinRequests?: JoinRequestListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -8648,6 +9804,7 @@ export namespace Prisma {
     tasksCreated?: TaskOrderByRelationAggregateInput
     assignedTasks?: TaskAssigmentOrderByRelationAggregateInput
     refreshToken?: TokenOrderByRelationAggregateInput
+    joinRequests?: JoinRequestOrderByRelationAggregateInput
     _relevance?: UserOrderByRelevanceInput
   }
 
@@ -8663,6 +9820,7 @@ export namespace Prisma {
     tasksCreated?: TaskListRelationFilter
     assignedTasks?: TaskAssigmentListRelationFilter
     refreshToken?: TokenListRelationFilter
+    joinRequests?: JoinRequestListRelationFilter
   }, "id" | "username" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -8696,6 +9854,7 @@ export namespace Prisma {
     members?: MemberListRelationFilter
     tasks?: TaskListRelationFilter
     invitations?: InvitationListRelationFilter
+    joinRequests?: JoinRequestListRelationFilter
   }
 
   export type TenantOrderByWithRelationInput = {
@@ -8706,6 +9865,7 @@ export namespace Prisma {
     members?: MemberOrderByRelationAggregateInput
     tasks?: TaskOrderByRelationAggregateInput
     invitations?: InvitationOrderByRelationAggregateInput
+    joinRequests?: JoinRequestOrderByRelationAggregateInput
     _relevance?: TenantOrderByRelevanceInput
   }
 
@@ -8720,6 +9880,7 @@ export namespace Prisma {
     members?: MemberListRelationFilter
     tasks?: TaskListRelationFilter
     invitations?: InvitationListRelationFilter
+    joinRequests?: JoinRequestListRelationFilter
   }, "id" | "name">
 
   export type TenantOrderByWithAggregationInput = {
@@ -9078,6 +10239,75 @@ export namespace Prisma {
     acceptedAt?: DateTimeNullableWithAggregatesFilter<"Invitation"> | Date | string | null
   }
 
+  export type JoinRequestWhereInput = {
+    AND?: JoinRequestWhereInput | JoinRequestWhereInput[]
+    OR?: JoinRequestWhereInput[]
+    NOT?: JoinRequestWhereInput | JoinRequestWhereInput[]
+    id?: StringFilter<"JoinRequest"> | string
+    message?: StringNullableFilter<"JoinRequest"> | string | null
+    status?: EnumJoinRequestStatusFilter<"JoinRequest"> | $Enums.JoinRequestStatus
+    userId?: StringFilter<"JoinRequest"> | string
+    tenantId?: StringFilter<"JoinRequest"> | string
+    createdAt?: DateTimeFilter<"JoinRequest"> | Date | string
+    handledAt?: DateTimeNullableFilter<"JoinRequest"> | Date | string | null
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type JoinRequestOrderByWithRelationInput = {
+    id?: SortOrder
+    message?: SortOrderInput | SortOrder
+    status?: SortOrder
+    userId?: SortOrder
+    tenantId?: SortOrder
+    createdAt?: SortOrder
+    handledAt?: SortOrderInput | SortOrder
+    tenant?: TenantOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+    _relevance?: JoinRequestOrderByRelevanceInput
+  }
+
+  export type JoinRequestWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: JoinRequestWhereInput | JoinRequestWhereInput[]
+    OR?: JoinRequestWhereInput[]
+    NOT?: JoinRequestWhereInput | JoinRequestWhereInput[]
+    message?: StringNullableFilter<"JoinRequest"> | string | null
+    status?: EnumJoinRequestStatusFilter<"JoinRequest"> | $Enums.JoinRequestStatus
+    userId?: StringFilter<"JoinRequest"> | string
+    tenantId?: StringFilter<"JoinRequest"> | string
+    createdAt?: DateTimeFilter<"JoinRequest"> | Date | string
+    handledAt?: DateTimeNullableFilter<"JoinRequest"> | Date | string | null
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type JoinRequestOrderByWithAggregationInput = {
+    id?: SortOrder
+    message?: SortOrderInput | SortOrder
+    status?: SortOrder
+    userId?: SortOrder
+    tenantId?: SortOrder
+    createdAt?: SortOrder
+    handledAt?: SortOrderInput | SortOrder
+    _count?: JoinRequestCountOrderByAggregateInput
+    _max?: JoinRequestMaxOrderByAggregateInput
+    _min?: JoinRequestMinOrderByAggregateInput
+  }
+
+  export type JoinRequestScalarWhereWithAggregatesInput = {
+    AND?: JoinRequestScalarWhereWithAggregatesInput | JoinRequestScalarWhereWithAggregatesInput[]
+    OR?: JoinRequestScalarWhereWithAggregatesInput[]
+    NOT?: JoinRequestScalarWhereWithAggregatesInput | JoinRequestScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"JoinRequest"> | string
+    message?: StringNullableWithAggregatesFilter<"JoinRequest"> | string | null
+    status?: EnumJoinRequestStatusWithAggregatesFilter<"JoinRequest"> | $Enums.JoinRequestStatus
+    userId?: StringWithAggregatesFilter<"JoinRequest"> | string
+    tenantId?: StringWithAggregatesFilter<"JoinRequest"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"JoinRequest"> | Date | string
+    handledAt?: DateTimeNullableWithAggregatesFilter<"JoinRequest"> | Date | string | null
+  }
+
   export type UserCreateInput = {
     id?: string
     username: string
@@ -9087,6 +10317,7 @@ export namespace Prisma {
     tasksCreated?: TaskCreateNestedManyWithoutCreatedByInput
     assignedTasks?: TaskAssigmentCreateNestedManyWithoutUserInput
     refreshToken?: TokenCreateNestedManyWithoutUserInput
+    joinRequests?: JoinRequestCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -9098,6 +10329,7 @@ export namespace Prisma {
     tasksCreated?: TaskUncheckedCreateNestedManyWithoutCreatedByInput
     assignedTasks?: TaskAssigmentUncheckedCreateNestedManyWithoutUserInput
     refreshToken?: TokenUncheckedCreateNestedManyWithoutUserInput
+    joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -9109,6 +10341,7 @@ export namespace Prisma {
     tasksCreated?: TaskUpdateManyWithoutCreatedByNestedInput
     assignedTasks?: TaskAssigmentUpdateManyWithoutUserNestedInput
     refreshToken?: TokenUpdateManyWithoutUserNestedInput
+    joinRequests?: JoinRequestUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -9120,6 +10353,7 @@ export namespace Prisma {
     tasksCreated?: TaskUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedTasks?: TaskAssigmentUncheckedUpdateManyWithoutUserNestedInput
     refreshToken?: TokenUncheckedUpdateManyWithoutUserNestedInput
+    joinRequests?: JoinRequestUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -9151,6 +10385,7 @@ export namespace Prisma {
     members?: MemberCreateNestedManyWithoutTenantInput
     tasks?: TaskCreateNestedManyWithoutTenantInput
     invitations?: InvitationCreateNestedManyWithoutTenantInput
+    joinRequests?: JoinRequestCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateInput = {
@@ -9161,6 +10396,7 @@ export namespace Prisma {
     members?: MemberUncheckedCreateNestedManyWithoutTenantInput
     tasks?: TaskUncheckedCreateNestedManyWithoutTenantInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUpdateInput = {
@@ -9171,6 +10407,7 @@ export namespace Prisma {
     members?: MemberUpdateManyWithoutTenantNestedInput
     tasks?: TaskUpdateManyWithoutTenantNestedInput
     invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    joinRequests?: JoinRequestUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateInput = {
@@ -9181,6 +10418,7 @@ export namespace Prisma {
     members?: MemberUncheckedUpdateManyWithoutTenantNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutTenantNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    joinRequests?: JoinRequestUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateManyInput = {
@@ -9536,6 +10774,74 @@ export namespace Prisma {
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type JoinRequestCreateInput = {
+    id?: string
+    message?: string | null
+    status?: $Enums.JoinRequestStatus
+    createdAt?: Date | string
+    handledAt?: Date | string | null
+    tenant: TenantCreateNestedOneWithoutJoinRequestsInput
+    user: UserCreateNestedOneWithoutJoinRequestsInput
+  }
+
+  export type JoinRequestUncheckedCreateInput = {
+    id?: string
+    message?: string | null
+    status?: $Enums.JoinRequestStatus
+    userId: string
+    tenantId: string
+    createdAt?: Date | string
+    handledAt?: Date | string | null
+  }
+
+  export type JoinRequestUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tenant?: TenantUpdateOneRequiredWithoutJoinRequestsNestedInput
+    user?: UserUpdateOneRequiredWithoutJoinRequestsNestedInput
+  }
+
+  export type JoinRequestUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
+    userId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type JoinRequestCreateManyInput = {
+    id?: string
+    message?: string | null
+    status?: $Enums.JoinRequestStatus
+    userId: string
+    tenantId: string
+    createdAt?: Date | string
+    handledAt?: Date | string | null
+  }
+
+  export type JoinRequestUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type JoinRequestUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
+    userId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -9575,6 +10881,12 @@ export namespace Prisma {
     none?: TokenWhereInput
   }
 
+  export type JoinRequestListRelationFilter = {
+    every?: JoinRequestWhereInput
+    some?: JoinRequestWhereInput
+    none?: JoinRequestWhereInput
+  }
+
   export type MemberOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -9588,6 +10900,10 @@ export namespace Prisma {
   }
 
   export type TokenOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type JoinRequestOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -10061,6 +11377,59 @@ export namespace Prisma {
     _max?: NestedEnumInvitationStatusFilter<$PrismaModel>
   }
 
+  export type EnumJoinRequestStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.JoinRequestStatus | EnumJoinRequestStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.JoinRequestStatus[]
+    notIn?: $Enums.JoinRequestStatus[]
+    not?: NestedEnumJoinRequestStatusFilter<$PrismaModel> | $Enums.JoinRequestStatus
+  }
+
+  export type JoinRequestOrderByRelevanceInput = {
+    fields: JoinRequestOrderByRelevanceFieldEnum | JoinRequestOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type JoinRequestCountOrderByAggregateInput = {
+    id?: SortOrder
+    message?: SortOrder
+    status?: SortOrder
+    userId?: SortOrder
+    tenantId?: SortOrder
+    createdAt?: SortOrder
+    handledAt?: SortOrder
+  }
+
+  export type JoinRequestMaxOrderByAggregateInput = {
+    id?: SortOrder
+    message?: SortOrder
+    status?: SortOrder
+    userId?: SortOrder
+    tenantId?: SortOrder
+    createdAt?: SortOrder
+    handledAt?: SortOrder
+  }
+
+  export type JoinRequestMinOrderByAggregateInput = {
+    id?: SortOrder
+    message?: SortOrder
+    status?: SortOrder
+    userId?: SortOrder
+    tenantId?: SortOrder
+    createdAt?: SortOrder
+    handledAt?: SortOrder
+  }
+
+  export type EnumJoinRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.JoinRequestStatus | EnumJoinRequestStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.JoinRequestStatus[]
+    notIn?: $Enums.JoinRequestStatus[]
+    not?: NestedEnumJoinRequestStatusWithAggregatesFilter<$PrismaModel> | $Enums.JoinRequestStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumJoinRequestStatusFilter<$PrismaModel>
+    _max?: NestedEnumJoinRequestStatusFilter<$PrismaModel>
+  }
+
   export type MemberCreateNestedManyWithoutUserInput = {
     create?: XOR<MemberCreateWithoutUserInput, MemberUncheckedCreateWithoutUserInput> | MemberCreateWithoutUserInput[] | MemberUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MemberCreateOrConnectWithoutUserInput | MemberCreateOrConnectWithoutUserInput[]
@@ -10089,6 +11458,13 @@ export namespace Prisma {
     connect?: TokenWhereUniqueInput | TokenWhereUniqueInput[]
   }
 
+  export type JoinRequestCreateNestedManyWithoutUserInput = {
+    create?: XOR<JoinRequestCreateWithoutUserInput, JoinRequestUncheckedCreateWithoutUserInput> | JoinRequestCreateWithoutUserInput[] | JoinRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: JoinRequestCreateOrConnectWithoutUserInput | JoinRequestCreateOrConnectWithoutUserInput[]
+    createMany?: JoinRequestCreateManyUserInputEnvelope
+    connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+  }
+
   export type MemberUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<MemberCreateWithoutUserInput, MemberUncheckedCreateWithoutUserInput> | MemberCreateWithoutUserInput[] | MemberUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MemberCreateOrConnectWithoutUserInput | MemberCreateOrConnectWithoutUserInput[]
@@ -10115,6 +11491,13 @@ export namespace Prisma {
     connectOrCreate?: TokenCreateOrConnectWithoutUserInput | TokenCreateOrConnectWithoutUserInput[]
     createMany?: TokenCreateManyUserInputEnvelope
     connect?: TokenWhereUniqueInput | TokenWhereUniqueInput[]
+  }
+
+  export type JoinRequestUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<JoinRequestCreateWithoutUserInput, JoinRequestUncheckedCreateWithoutUserInput> | JoinRequestCreateWithoutUserInput[] | JoinRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: JoinRequestCreateOrConnectWithoutUserInput | JoinRequestCreateOrConnectWithoutUserInput[]
+    createMany?: JoinRequestCreateManyUserInputEnvelope
+    connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -10177,6 +11560,20 @@ export namespace Prisma {
     deleteMany?: TokenScalarWhereInput | TokenScalarWhereInput[]
   }
 
+  export type JoinRequestUpdateManyWithoutUserNestedInput = {
+    create?: XOR<JoinRequestCreateWithoutUserInput, JoinRequestUncheckedCreateWithoutUserInput> | JoinRequestCreateWithoutUserInput[] | JoinRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: JoinRequestCreateOrConnectWithoutUserInput | JoinRequestCreateOrConnectWithoutUserInput[]
+    upsert?: JoinRequestUpsertWithWhereUniqueWithoutUserInput | JoinRequestUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: JoinRequestCreateManyUserInputEnvelope
+    set?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    disconnect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    delete?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    update?: JoinRequestUpdateWithWhereUniqueWithoutUserInput | JoinRequestUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: JoinRequestUpdateManyWithWhereWithoutUserInput | JoinRequestUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: JoinRequestScalarWhereInput | JoinRequestScalarWhereInput[]
+  }
+
   export type MemberUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<MemberCreateWithoutUserInput, MemberUncheckedCreateWithoutUserInput> | MemberCreateWithoutUserInput[] | MemberUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MemberCreateOrConnectWithoutUserInput | MemberCreateOrConnectWithoutUserInput[]
@@ -10233,6 +11630,20 @@ export namespace Prisma {
     deleteMany?: TokenScalarWhereInput | TokenScalarWhereInput[]
   }
 
+  export type JoinRequestUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<JoinRequestCreateWithoutUserInput, JoinRequestUncheckedCreateWithoutUserInput> | JoinRequestCreateWithoutUserInput[] | JoinRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: JoinRequestCreateOrConnectWithoutUserInput | JoinRequestCreateOrConnectWithoutUserInput[]
+    upsert?: JoinRequestUpsertWithWhereUniqueWithoutUserInput | JoinRequestUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: JoinRequestCreateManyUserInputEnvelope
+    set?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    disconnect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    delete?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    update?: JoinRequestUpdateWithWhereUniqueWithoutUserInput | JoinRequestUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: JoinRequestUpdateManyWithWhereWithoutUserInput | JoinRequestUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: JoinRequestScalarWhereInput | JoinRequestScalarWhereInput[]
+  }
+
   export type MemberCreateNestedManyWithoutTenantInput = {
     create?: XOR<MemberCreateWithoutTenantInput, MemberUncheckedCreateWithoutTenantInput> | MemberCreateWithoutTenantInput[] | MemberUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: MemberCreateOrConnectWithoutTenantInput | MemberCreateOrConnectWithoutTenantInput[]
@@ -10254,6 +11665,13 @@ export namespace Prisma {
     connect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
   }
 
+  export type JoinRequestCreateNestedManyWithoutTenantInput = {
+    create?: XOR<JoinRequestCreateWithoutTenantInput, JoinRequestUncheckedCreateWithoutTenantInput> | JoinRequestCreateWithoutTenantInput[] | JoinRequestUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: JoinRequestCreateOrConnectWithoutTenantInput | JoinRequestCreateOrConnectWithoutTenantInput[]
+    createMany?: JoinRequestCreateManyTenantInputEnvelope
+    connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+  }
+
   export type MemberUncheckedCreateNestedManyWithoutTenantInput = {
     create?: XOR<MemberCreateWithoutTenantInput, MemberUncheckedCreateWithoutTenantInput> | MemberCreateWithoutTenantInput[] | MemberUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: MemberCreateOrConnectWithoutTenantInput | MemberCreateOrConnectWithoutTenantInput[]
@@ -10273,6 +11691,13 @@ export namespace Prisma {
     connectOrCreate?: InvitationCreateOrConnectWithoutTenantInput | InvitationCreateOrConnectWithoutTenantInput[]
     createMany?: InvitationCreateManyTenantInputEnvelope
     connect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+  }
+
+  export type JoinRequestUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<JoinRequestCreateWithoutTenantInput, JoinRequestUncheckedCreateWithoutTenantInput> | JoinRequestCreateWithoutTenantInput[] | JoinRequestUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: JoinRequestCreateOrConnectWithoutTenantInput | JoinRequestCreateOrConnectWithoutTenantInput[]
+    createMany?: JoinRequestCreateManyTenantInputEnvelope
+    connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -10325,6 +11750,20 @@ export namespace Prisma {
     deleteMany?: InvitationScalarWhereInput | InvitationScalarWhereInput[]
   }
 
+  export type JoinRequestUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<JoinRequestCreateWithoutTenantInput, JoinRequestUncheckedCreateWithoutTenantInput> | JoinRequestCreateWithoutTenantInput[] | JoinRequestUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: JoinRequestCreateOrConnectWithoutTenantInput | JoinRequestCreateOrConnectWithoutTenantInput[]
+    upsert?: JoinRequestUpsertWithWhereUniqueWithoutTenantInput | JoinRequestUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: JoinRequestCreateManyTenantInputEnvelope
+    set?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    disconnect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    delete?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    update?: JoinRequestUpdateWithWhereUniqueWithoutTenantInput | JoinRequestUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: JoinRequestUpdateManyWithWhereWithoutTenantInput | JoinRequestUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: JoinRequestScalarWhereInput | JoinRequestScalarWhereInput[]
+  }
+
   export type MemberUncheckedUpdateManyWithoutTenantNestedInput = {
     create?: XOR<MemberCreateWithoutTenantInput, MemberUncheckedCreateWithoutTenantInput> | MemberCreateWithoutTenantInput[] | MemberUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: MemberCreateOrConnectWithoutTenantInput | MemberCreateOrConnectWithoutTenantInput[]
@@ -10365,6 +11804,20 @@ export namespace Prisma {
     update?: InvitationUpdateWithWhereUniqueWithoutTenantInput | InvitationUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: InvitationUpdateManyWithWhereWithoutTenantInput | InvitationUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: InvitationScalarWhereInput | InvitationScalarWhereInput[]
+  }
+
+  export type JoinRequestUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<JoinRequestCreateWithoutTenantInput, JoinRequestUncheckedCreateWithoutTenantInput> | JoinRequestCreateWithoutTenantInput[] | JoinRequestUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: JoinRequestCreateOrConnectWithoutTenantInput | JoinRequestCreateOrConnectWithoutTenantInput[]
+    upsert?: JoinRequestUpsertWithWhereUniqueWithoutTenantInput | JoinRequestUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: JoinRequestCreateManyTenantInputEnvelope
+    set?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    disconnect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    delete?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    connect?: JoinRequestWhereUniqueInput | JoinRequestWhereUniqueInput[]
+    update?: JoinRequestUpdateWithWhereUniqueWithoutTenantInput | JoinRequestUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: JoinRequestUpdateManyWithWhereWithoutTenantInput | JoinRequestUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: JoinRequestScalarWhereInput | JoinRequestScalarWhereInput[]
   }
 
   export type TaskAssigmentCreateNestedManyWithoutTaskInput = {
@@ -10547,6 +12000,38 @@ export namespace Prisma {
     upsert?: TenantUpsertWithoutInvitationsInput
     connect?: TenantWhereUniqueInput
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutInvitationsInput, TenantUpdateWithoutInvitationsInput>, TenantUncheckedUpdateWithoutInvitationsInput>
+  }
+
+  export type TenantCreateNestedOneWithoutJoinRequestsInput = {
+    create?: XOR<TenantCreateWithoutJoinRequestsInput, TenantUncheckedCreateWithoutJoinRequestsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutJoinRequestsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutJoinRequestsInput = {
+    create?: XOR<UserCreateWithoutJoinRequestsInput, UserUncheckedCreateWithoutJoinRequestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutJoinRequestsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumJoinRequestStatusFieldUpdateOperationsInput = {
+    set?: $Enums.JoinRequestStatus
+  }
+
+  export type TenantUpdateOneRequiredWithoutJoinRequestsNestedInput = {
+    create?: XOR<TenantCreateWithoutJoinRequestsInput, TenantUncheckedCreateWithoutJoinRequestsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutJoinRequestsInput
+    upsert?: TenantUpsertWithoutJoinRequestsInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutJoinRequestsInput, TenantUpdateWithoutJoinRequestsInput>, TenantUncheckedUpdateWithoutJoinRequestsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutJoinRequestsNestedInput = {
+    create?: XOR<UserCreateWithoutJoinRequestsInput, UserUncheckedCreateWithoutJoinRequestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutJoinRequestsInput
+    upsert?: UserUpsertWithoutJoinRequestsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutJoinRequestsInput, UserUpdateWithoutJoinRequestsInput>, UserUncheckedUpdateWithoutJoinRequestsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -10778,6 +12263,23 @@ export namespace Prisma {
     _max?: NestedEnumInvitationStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumJoinRequestStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.JoinRequestStatus | EnumJoinRequestStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.JoinRequestStatus[]
+    notIn?: $Enums.JoinRequestStatus[]
+    not?: NestedEnumJoinRequestStatusFilter<$PrismaModel> | $Enums.JoinRequestStatus
+  }
+
+  export type NestedEnumJoinRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.JoinRequestStatus | EnumJoinRequestStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.JoinRequestStatus[]
+    notIn?: $Enums.JoinRequestStatus[]
+    not?: NestedEnumJoinRequestStatusWithAggregatesFilter<$PrismaModel> | $Enums.JoinRequestStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumJoinRequestStatusFilter<$PrismaModel>
+    _max?: NestedEnumJoinRequestStatusFilter<$PrismaModel>
+  }
+
   export type MemberCreateWithoutUserInput = {
     id?: string
     role: $Enums.Role
@@ -10883,6 +12385,34 @@ export namespace Prisma {
 
   export type TokenCreateManyUserInputEnvelope = {
     data: TokenCreateManyUserInput | TokenCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type JoinRequestCreateWithoutUserInput = {
+    id?: string
+    message?: string | null
+    status?: $Enums.JoinRequestStatus
+    createdAt?: Date | string
+    handledAt?: Date | string | null
+    tenant: TenantCreateNestedOneWithoutJoinRequestsInput
+  }
+
+  export type JoinRequestUncheckedCreateWithoutUserInput = {
+    id?: string
+    message?: string | null
+    status?: $Enums.JoinRequestStatus
+    tenantId: string
+    createdAt?: Date | string
+    handledAt?: Date | string | null
+  }
+
+  export type JoinRequestCreateOrConnectWithoutUserInput = {
+    where: JoinRequestWhereUniqueInput
+    create: XOR<JoinRequestCreateWithoutUserInput, JoinRequestUncheckedCreateWithoutUserInput>
+  }
+
+  export type JoinRequestCreateManyUserInputEnvelope = {
+    data: JoinRequestCreateManyUserInput | JoinRequestCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -10999,6 +12529,35 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Token"> | Date | string
   }
 
+  export type JoinRequestUpsertWithWhereUniqueWithoutUserInput = {
+    where: JoinRequestWhereUniqueInput
+    update: XOR<JoinRequestUpdateWithoutUserInput, JoinRequestUncheckedUpdateWithoutUserInput>
+    create: XOR<JoinRequestCreateWithoutUserInput, JoinRequestUncheckedCreateWithoutUserInput>
+  }
+
+  export type JoinRequestUpdateWithWhereUniqueWithoutUserInput = {
+    where: JoinRequestWhereUniqueInput
+    data: XOR<JoinRequestUpdateWithoutUserInput, JoinRequestUncheckedUpdateWithoutUserInput>
+  }
+
+  export type JoinRequestUpdateManyWithWhereWithoutUserInput = {
+    where: JoinRequestScalarWhereInput
+    data: XOR<JoinRequestUpdateManyMutationInput, JoinRequestUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type JoinRequestScalarWhereInput = {
+    AND?: JoinRequestScalarWhereInput | JoinRequestScalarWhereInput[]
+    OR?: JoinRequestScalarWhereInput[]
+    NOT?: JoinRequestScalarWhereInput | JoinRequestScalarWhereInput[]
+    id?: StringFilter<"JoinRequest"> | string
+    message?: StringNullableFilter<"JoinRequest"> | string | null
+    status?: EnumJoinRequestStatusFilter<"JoinRequest"> | $Enums.JoinRequestStatus
+    userId?: StringFilter<"JoinRequest"> | string
+    tenantId?: StringFilter<"JoinRequest"> | string
+    createdAt?: DateTimeFilter<"JoinRequest"> | Date | string
+    handledAt?: DateTimeNullableFilter<"JoinRequest"> | Date | string | null
+  }
+
   export type MemberCreateWithoutTenantInput = {
     id?: string
     role: $Enums.Role
@@ -11089,6 +12648,34 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type JoinRequestCreateWithoutTenantInput = {
+    id?: string
+    message?: string | null
+    status?: $Enums.JoinRequestStatus
+    createdAt?: Date | string
+    handledAt?: Date | string | null
+    user: UserCreateNestedOneWithoutJoinRequestsInput
+  }
+
+  export type JoinRequestUncheckedCreateWithoutTenantInput = {
+    id?: string
+    message?: string | null
+    status?: $Enums.JoinRequestStatus
+    userId: string
+    createdAt?: Date | string
+    handledAt?: Date | string | null
+  }
+
+  export type JoinRequestCreateOrConnectWithoutTenantInput = {
+    where: JoinRequestWhereUniqueInput
+    create: XOR<JoinRequestCreateWithoutTenantInput, JoinRequestUncheckedCreateWithoutTenantInput>
+  }
+
+  export type JoinRequestCreateManyTenantInputEnvelope = {
+    data: JoinRequestCreateManyTenantInput | JoinRequestCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
   export type MemberUpsertWithWhereUniqueWithoutTenantInput = {
     where: MemberWhereUniqueInput
     update: XOR<MemberUpdateWithoutTenantInput, MemberUncheckedUpdateWithoutTenantInput>
@@ -11151,6 +12738,22 @@ export namespace Prisma {
     acceptedAt?: DateTimeNullableFilter<"Invitation"> | Date | string | null
   }
 
+  export type JoinRequestUpsertWithWhereUniqueWithoutTenantInput = {
+    where: JoinRequestWhereUniqueInput
+    update: XOR<JoinRequestUpdateWithoutTenantInput, JoinRequestUncheckedUpdateWithoutTenantInput>
+    create: XOR<JoinRequestCreateWithoutTenantInput, JoinRequestUncheckedCreateWithoutTenantInput>
+  }
+
+  export type JoinRequestUpdateWithWhereUniqueWithoutTenantInput = {
+    where: JoinRequestWhereUniqueInput
+    data: XOR<JoinRequestUpdateWithoutTenantInput, JoinRequestUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type JoinRequestUpdateManyWithWhereWithoutTenantInput = {
+    where: JoinRequestScalarWhereInput
+    data: XOR<JoinRequestUpdateManyMutationInput, JoinRequestUncheckedUpdateManyWithoutTenantInput>
+  }
+
   export type TaskAssigmentCreateWithoutTaskInput = {
     id?: string
     user: UserCreateNestedOneWithoutAssignedTasksInput
@@ -11178,6 +12781,7 @@ export namespace Prisma {
     createdAt?: Date | string
     members?: MemberCreateNestedManyWithoutTenantInput
     invitations?: InvitationCreateNestedManyWithoutTenantInput
+    joinRequests?: JoinRequestCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutTasksInput = {
@@ -11187,6 +12791,7 @@ export namespace Prisma {
     createdAt?: Date | string
     members?: MemberUncheckedCreateNestedManyWithoutTenantInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutTasksInput = {
@@ -11202,6 +12807,7 @@ export namespace Prisma {
     tenants?: MemberCreateNestedManyWithoutUserInput
     assignedTasks?: TaskAssigmentCreateNestedManyWithoutUserInput
     refreshToken?: TokenCreateNestedManyWithoutUserInput
+    joinRequests?: JoinRequestCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTasksCreatedInput = {
@@ -11212,6 +12818,7 @@ export namespace Prisma {
     tenants?: MemberUncheckedCreateNestedManyWithoutUserInput
     assignedTasks?: TaskAssigmentUncheckedCreateNestedManyWithoutUserInput
     refreshToken?: TokenUncheckedCreateNestedManyWithoutUserInput
+    joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTasksCreatedInput = {
@@ -11253,6 +12860,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: MemberUpdateManyWithoutTenantNestedInput
     invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    joinRequests?: JoinRequestUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutTasksInput = {
@@ -11262,6 +12870,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: MemberUncheckedUpdateManyWithoutTenantNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    joinRequests?: JoinRequestUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type UserUpsertWithoutTasksCreatedInput = {
@@ -11283,6 +12892,7 @@ export namespace Prisma {
     tenants?: MemberUpdateManyWithoutUserNestedInput
     assignedTasks?: TaskAssigmentUpdateManyWithoutUserNestedInput
     refreshToken?: TokenUpdateManyWithoutUserNestedInput
+    joinRequests?: JoinRequestUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTasksCreatedInput = {
@@ -11293,6 +12903,7 @@ export namespace Prisma {
     tenants?: MemberUncheckedUpdateManyWithoutUserNestedInput
     assignedTasks?: TaskAssigmentUncheckedUpdateManyWithoutUserNestedInput
     refreshToken?: TokenUncheckedUpdateManyWithoutUserNestedInput
+    joinRequests?: JoinRequestUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAssignedTasksInput = {
@@ -11303,6 +12914,7 @@ export namespace Prisma {
     tenants?: MemberCreateNestedManyWithoutUserInput
     tasksCreated?: TaskCreateNestedManyWithoutCreatedByInput
     refreshToken?: TokenCreateNestedManyWithoutUserInput
+    joinRequests?: JoinRequestCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAssignedTasksInput = {
@@ -11313,6 +12925,7 @@ export namespace Prisma {
     tenants?: MemberUncheckedCreateNestedManyWithoutUserInput
     tasksCreated?: TaskUncheckedCreateNestedManyWithoutCreatedByInput
     refreshToken?: TokenUncheckedCreateNestedManyWithoutUserInput
+    joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAssignedTasksInput = {
@@ -11372,6 +12985,7 @@ export namespace Prisma {
     tenants?: MemberUpdateManyWithoutUserNestedInput
     tasksCreated?: TaskUpdateManyWithoutCreatedByNestedInput
     refreshToken?: TokenUpdateManyWithoutUserNestedInput
+    joinRequests?: JoinRequestUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedTasksInput = {
@@ -11382,6 +12996,7 @@ export namespace Prisma {
     tenants?: MemberUncheckedUpdateManyWithoutUserNestedInput
     tasksCreated?: TaskUncheckedUpdateManyWithoutCreatedByNestedInput
     refreshToken?: TokenUncheckedUpdateManyWithoutUserNestedInput
+    joinRequests?: JoinRequestUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TaskUpsertWithoutAssignedUsersInput = {
@@ -11431,6 +13046,7 @@ export namespace Prisma {
     tasksCreated?: TaskCreateNestedManyWithoutCreatedByInput
     assignedTasks?: TaskAssigmentCreateNestedManyWithoutUserInput
     refreshToken?: TokenCreateNestedManyWithoutUserInput
+    joinRequests?: JoinRequestCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTenantsInput = {
@@ -11441,6 +13057,7 @@ export namespace Prisma {
     tasksCreated?: TaskUncheckedCreateNestedManyWithoutCreatedByInput
     assignedTasks?: TaskAssigmentUncheckedCreateNestedManyWithoutUserInput
     refreshToken?: TokenUncheckedCreateNestedManyWithoutUserInput
+    joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTenantsInput = {
@@ -11455,6 +13072,7 @@ export namespace Prisma {
     createdAt?: Date | string
     tasks?: TaskCreateNestedManyWithoutTenantInput
     invitations?: InvitationCreateNestedManyWithoutTenantInput
+    joinRequests?: JoinRequestCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutMembersInput = {
@@ -11464,6 +13082,7 @@ export namespace Prisma {
     createdAt?: Date | string
     tasks?: TaskUncheckedCreateNestedManyWithoutTenantInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutMembersInput = {
@@ -11490,6 +13109,7 @@ export namespace Prisma {
     tasksCreated?: TaskUpdateManyWithoutCreatedByNestedInput
     assignedTasks?: TaskAssigmentUpdateManyWithoutUserNestedInput
     refreshToken?: TokenUpdateManyWithoutUserNestedInput
+    joinRequests?: JoinRequestUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTenantsInput = {
@@ -11500,6 +13120,7 @@ export namespace Prisma {
     tasksCreated?: TaskUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedTasks?: TaskAssigmentUncheckedUpdateManyWithoutUserNestedInput
     refreshToken?: TokenUncheckedUpdateManyWithoutUserNestedInput
+    joinRequests?: JoinRequestUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TenantUpsertWithoutMembersInput = {
@@ -11520,6 +13141,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tasks?: TaskUpdateManyWithoutTenantNestedInput
     invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    joinRequests?: JoinRequestUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutMembersInput = {
@@ -11529,6 +13151,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tasks?: TaskUncheckedUpdateManyWithoutTenantNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    joinRequests?: JoinRequestUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type UserCreateWithoutRefreshTokenInput = {
@@ -11539,6 +13162,7 @@ export namespace Prisma {
     tenants?: MemberCreateNestedManyWithoutUserInput
     tasksCreated?: TaskCreateNestedManyWithoutCreatedByInput
     assignedTasks?: TaskAssigmentCreateNestedManyWithoutUserInput
+    joinRequests?: JoinRequestCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRefreshTokenInput = {
@@ -11549,6 +13173,7 @@ export namespace Prisma {
     tenants?: MemberUncheckedCreateNestedManyWithoutUserInput
     tasksCreated?: TaskUncheckedCreateNestedManyWithoutCreatedByInput
     assignedTasks?: TaskAssigmentUncheckedCreateNestedManyWithoutUserInput
+    joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRefreshTokenInput = {
@@ -11575,6 +13200,7 @@ export namespace Prisma {
     tenants?: MemberUpdateManyWithoutUserNestedInput
     tasksCreated?: TaskUpdateManyWithoutCreatedByNestedInput
     assignedTasks?: TaskAssigmentUpdateManyWithoutUserNestedInput
+    joinRequests?: JoinRequestUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRefreshTokenInput = {
@@ -11585,6 +13211,7 @@ export namespace Prisma {
     tenants?: MemberUncheckedUpdateManyWithoutUserNestedInput
     tasksCreated?: TaskUncheckedUpdateManyWithoutCreatedByNestedInput
     assignedTasks?: TaskAssigmentUncheckedUpdateManyWithoutUserNestedInput
+    joinRequests?: JoinRequestUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TenantCreateWithoutInvitationsInput = {
@@ -11594,6 +13221,7 @@ export namespace Prisma {
     createdAt?: Date | string
     members?: MemberCreateNestedManyWithoutTenantInput
     tasks?: TaskCreateNestedManyWithoutTenantInput
+    joinRequests?: JoinRequestCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutInvitationsInput = {
@@ -11603,6 +13231,7 @@ export namespace Prisma {
     createdAt?: Date | string
     members?: MemberUncheckedCreateNestedManyWithoutTenantInput
     tasks?: TaskUncheckedCreateNestedManyWithoutTenantInput
+    joinRequests?: JoinRequestUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutInvitationsInput = {
@@ -11628,6 +13257,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: MemberUpdateManyWithoutTenantNestedInput
     tasks?: TaskUpdateManyWithoutTenantNestedInput
+    joinRequests?: JoinRequestUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutInvitationsInput = {
@@ -11637,6 +13267,123 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: MemberUncheckedUpdateManyWithoutTenantNestedInput
     tasks?: TaskUncheckedUpdateManyWithoutTenantNestedInput
+    joinRequests?: JoinRequestUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantCreateWithoutJoinRequestsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    createdAt?: Date | string
+    members?: MemberCreateNestedManyWithoutTenantInput
+    tasks?: TaskCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutJoinRequestsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    createdAt?: Date | string
+    members?: MemberUncheckedCreateNestedManyWithoutTenantInput
+    tasks?: TaskUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutJoinRequestsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutJoinRequestsInput, TenantUncheckedCreateWithoutJoinRequestsInput>
+  }
+
+  export type UserCreateWithoutJoinRequestsInput = {
+    id?: string
+    username: string
+    email: string
+    password: string
+    tenants?: MemberCreateNestedManyWithoutUserInput
+    tasksCreated?: TaskCreateNestedManyWithoutCreatedByInput
+    assignedTasks?: TaskAssigmentCreateNestedManyWithoutUserInput
+    refreshToken?: TokenCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutJoinRequestsInput = {
+    id?: string
+    username: string
+    email: string
+    password: string
+    tenants?: MemberUncheckedCreateNestedManyWithoutUserInput
+    tasksCreated?: TaskUncheckedCreateNestedManyWithoutCreatedByInput
+    assignedTasks?: TaskAssigmentUncheckedCreateNestedManyWithoutUserInput
+    refreshToken?: TokenUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutJoinRequestsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutJoinRequestsInput, UserUncheckedCreateWithoutJoinRequestsInput>
+  }
+
+  export type TenantUpsertWithoutJoinRequestsInput = {
+    update: XOR<TenantUpdateWithoutJoinRequestsInput, TenantUncheckedUpdateWithoutJoinRequestsInput>
+    create: XOR<TenantCreateWithoutJoinRequestsInput, TenantUncheckedCreateWithoutJoinRequestsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutJoinRequestsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutJoinRequestsInput, TenantUncheckedUpdateWithoutJoinRequestsInput>
+  }
+
+  export type TenantUpdateWithoutJoinRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: MemberUpdateManyWithoutTenantNestedInput
+    tasks?: TaskUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutJoinRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: MemberUncheckedUpdateManyWithoutTenantNestedInput
+    tasks?: TaskUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type UserUpsertWithoutJoinRequestsInput = {
+    update: XOR<UserUpdateWithoutJoinRequestsInput, UserUncheckedUpdateWithoutJoinRequestsInput>
+    create: XOR<UserCreateWithoutJoinRequestsInput, UserUncheckedCreateWithoutJoinRequestsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutJoinRequestsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutJoinRequestsInput, UserUncheckedUpdateWithoutJoinRequestsInput>
+  }
+
+  export type UserUpdateWithoutJoinRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    tenants?: MemberUpdateManyWithoutUserNestedInput
+    tasksCreated?: TaskUpdateManyWithoutCreatedByNestedInput
+    assignedTasks?: TaskAssigmentUpdateManyWithoutUserNestedInput
+    refreshToken?: TokenUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutJoinRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    tenants?: MemberUncheckedUpdateManyWithoutUserNestedInput
+    tasksCreated?: TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+    assignedTasks?: TaskAssigmentUncheckedUpdateManyWithoutUserNestedInput
+    refreshToken?: TokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type MemberCreateManyUserInput = {
@@ -11670,6 +13417,15 @@ export namespace Prisma {
     expiresAt: Date | string
     usedAt?: Date | string | null
     createdAt?: Date | string
+  }
+
+  export type JoinRequestCreateManyUserInput = {
+    id?: string
+    message?: string | null
+    status?: $Enums.JoinRequestStatus
+    tenantId: string
+    createdAt?: Date | string
+    handledAt?: Date | string | null
   }
 
   export type MemberUpdateWithoutUserInput = {
@@ -11773,6 +13529,33 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type JoinRequestUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tenant?: TenantUpdateOneRequiredWithoutJoinRequestsNestedInput
+  }
+
+  export type JoinRequestUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
+    tenantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type JoinRequestUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
+    tenantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type MemberCreateManyTenantInput = {
     id?: string
     userId: string
@@ -11800,6 +13583,15 @@ export namespace Prisma {
     expiresAt: Date | string
     status?: $Enums.InvitationStatus
     acceptedAt?: Date | string | null
+  }
+
+  export type JoinRequestCreateManyTenantInput = {
+    id?: string
+    message?: string | null
+    status?: $Enums.JoinRequestStatus
+    userId: string
+    createdAt?: Date | string
+    handledAt?: Date | string | null
   }
 
   export type MemberUpdateWithoutTenantInput = {
@@ -11889,6 +13681,33 @@ export namespace Prisma {
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumInvitationStatusFieldUpdateOperationsInput | $Enums.InvitationStatus
     acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type JoinRequestUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutJoinRequestsNestedInput
+  }
+
+  export type JoinRequestUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type JoinRequestUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumJoinRequestStatusFieldUpdateOperationsInput | $Enums.JoinRequestStatus
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type TaskAssigmentCreateManyTaskInput = {

@@ -1,5 +1,5 @@
 import supertest from "supertest";
-import { checkInvitation, checkMember, checkTenant, cleanUserData, createInvitation, createTenant, createUser, generateKey, generateTenantInformation, generateUserInformation, joinTenant, removeAllData } from "./test-utils.js";
+import { checkInvitation, checkJoinRequest, checkMember, checkTenant, cleanUserData, createInvitation, createTenant, createUser, generateKey, generateTenantInformation, generateUserInformation, joinTenant, removeAllData, sendJoinRequest } from "./test-utils.js";
 import { web } from "../src/application/web.js";
 import { logger } from "../src/application/logging.js";
 
@@ -2111,6 +2111,146 @@ describe('DELETE /tenants/:tenantId/members/me', () => {
             success: false,
             error: {
                 code: 'NOT_FOUND_TENANT',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+});
+
+describe('POST /tenants/:tenantId/join', () => {
+    let key;
+    beforeEach(() => {
+        key = generateKey();    
+    });
+    afterEach(async () => {
+        await removeAllData(key);
+    });
+
+    it('should return 201 created when successfully sent a join request', async () => {
+        const user = await createUser(key);
+        const tenant = await createTenant(key);
+
+        const result = await supertest(web)
+            .post(`/tenants/${tenant.id}/join`)
+            .set('Authorization', `Bearer ${user.accessToken}`);
+        expect(result.status).toBe(201);
+        expect(result.body).toEqual({
+            success: true,
+            data: {
+                requestId: expect.any(String),
+            },
+        });
+        expect(await checkJoinRequest(result.body.data.requestId)).toBe(true);
+    });
+
+    it('should return 400 bad request if request body is invalid', async () => {
+        const user = await createUser(key);
+        const tenant = await createTenant(key);
+
+        const result = await supertest(web)
+            .post(`/tenants/${tenant.id}/join`)
+            .set('Authorization', `Bearer ${user.accessToken}`)
+            .send({
+                username: "HALo",
+            });
+        
+        expect(result.status).toBe(400);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'VALIDATION_ERROR',
+                message: expect.any(String),
+                details: expect.any(Object),
+            }
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+        expect(result.body.error.details.length).toBeGreaterThan(0);
+        expect(result.body.error.details[0]).toEqual({
+            field: expect.any(String),
+            message: expect.any(String),
+        });
+        expect(result.body.error.details[0].field.length).toBeGreaterThan(0);
+        expect(result.body.error.details[0].message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 401 unauthorized when requested by an unauthenticated user', async () => {
+        const tenant = await createTenant(key);
+        const result = await supertest(web)
+            .post(`/tenants/${tenant.id}/join`);
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'AUTH_REQUIRED',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 401 unauthorized when access token is invalid', async () => {
+        const tenant = await createTenant(key);
+        const result = await supertest(web)
+            .post(`/tenants/${tenant.id}/join`)
+            .set('Authorization', 'Bearer invalid-token');
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'INVALID_ACCESS_TOKEN',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 404 when tenant id is invalid', async () => {
+        const user = await createUser(key);
+        const result = await supertest(web)
+            .post('/tenants/invalid-tenant-id/join')
+            .set('Authorization', `Bearer ${user.accessToken}`);
+        expect(result.status).toBe(404);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'NOT_FOUND_TENANT',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 409 conflict when requested by a member', async () => {
+        const user = await createUser(key);
+        const tenant = await createTenant(key);
+        await joinTenant(user.id, tenant.id);
+        const result = await supertest(web)
+            .post(`/tenants/${tenant.id}/join`)
+            .set('Authorization', `Bearer ${user.accessToken}`);
+        expect(result.status).toBe(409);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'ALREADY_MEMBER',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 409 conflict when requested by a user who already have pending request', async () => {
+        const user = await createUser(key);
+        const tenant = await createTenant(key);
+        await sendJoinRequest(user.id, tenant.id);
+        const result = await supertest(web)
+            .post(`/tenants/${tenant.id}/join`)
+            .set('Authorization', `Bearer ${user.accessToken}`);
+        expect(result.status).toBe(409);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'JOIN_REQUEST_ALREADY_PENDING',
                 message: expect.any(String),
             },
         });

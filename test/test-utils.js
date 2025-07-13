@@ -188,7 +188,31 @@ const createInvitationUsingEmail = async (tenantId, email, role='MEMBER') => {
     }
     invitation.createdAt = invitation.createdAt.toISOString();
     return invitation;
-}
+};
+
+const checkJoinRequest = async (requestId) => {
+    const joinRequest = await prismaClient.joinRequest.findUnique({
+        where: {
+            id: requestId,
+        },
+        select: {
+            id: true,
+        },
+    });
+    if (!joinRequest) {
+        return false;
+    }
+    return true;
+};
+
+const sendJoinRequest = async (userId, tenantId) => {
+    await prismaClient.joinRequest.create({
+        data: {
+            userId: userId,
+            tenantId: tenantId,
+        },
+    });
+};
 
 export {
     generateKey,
@@ -207,4 +231,6 @@ export {
     checkInvitation,
     checkMember,
     createInvitationUsingEmail,
+    checkJoinRequest,
+    sendJoinRequest,
 };

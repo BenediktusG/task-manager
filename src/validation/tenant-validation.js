@@ -22,8 +22,13 @@ const changeMemberRoleValidation = Joi.object({
     role: Joi.string().valid(...Object.values(Roles)).required(),
 });
 
+const joinRequestValidation = Joi.object({
+    message: Joi.string().max(500).optional(),
+});
+
 export {
     createTenantValidation,
     inviteUserValidation,
     changeMemberRoleValidation,
+    joinRequestValidation,
 };

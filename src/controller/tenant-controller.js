@@ -160,7 +160,21 @@ const leaveTenant = async (req, res, next) => {
     } catch (e) {
         next(e);
     }
-}
+};
+
+const joinTenant = async (req, res, next) => {
+    try {
+        const requestId = await tenantService.joinTenant(req.body, req.params.tenantId, req.user);
+        res.status(201).json({
+            success: true,
+            data: {
+                requestId: requestId,
+            },
+        });
+    } catch (e) {
+        next(e);
+    }
+};
 
 export default {
     create,
@@ -176,4 +190,5 @@ export default {
     editMemberRole,
     deleteMember,
     leaveTenant,
+    joinTenant,
 };

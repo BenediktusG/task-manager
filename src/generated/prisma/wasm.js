@@ -179,6 +179,16 @@ exports.Prisma.InvitationScalarFieldEnum = {
   acceptedAt: 'acceptedAt'
 };
 
+exports.Prisma.JoinRequestScalarFieldEnum = {
+  id: 'id',
+  message: 'message',
+  status: 'status',
+  userId: 'userId',
+  tenantId: 'tenantId',
+  createdAt: 'createdAt',
+  handledAt: 'handledAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -233,6 +243,13 @@ exports.Prisma.InvitationOrderByRelevanceFieldEnum = {
   email: 'email',
   tenantId: 'tenantId'
 };
+
+exports.Prisma.JoinRequestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  message: 'message',
+  userId: 'userId',
+  tenantId: 'tenantId'
+};
 exports.TaskStatus = exports.$Enums.TaskStatus = {
   NOT_STARTED: 'NOT_STARTED',
   IN_PROGRESS: 'IN_PROGRESS',
@@ -252,6 +269,12 @@ exports.InvitationStatus = exports.$Enums.InvitationStatus = {
   EXPIRED: 'EXPIRED'
 };
 
+exports.JoinRequestStatus = exports.$Enums.JoinRequestStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Tenant: 'Tenant',
@@ -259,7 +282,8 @@ exports.Prisma.ModelName = {
   TaskAssigment: 'TaskAssigment',
   Member: 'Member',
   Token: 'Token',
-  Invitation: 'Invitation'
+  Invitation: 'Invitation',
+  JoinRequest: 'JoinRequest'
 };
 
 /**

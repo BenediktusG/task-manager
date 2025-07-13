@@ -33,6 +33,12 @@ enum InvitationStatus {
   EXPIRED
 }
 
+enum JoinRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 model User {
   id       String @id @default(uuid())
   username String @unique @db.VarChar(20)
@@ -43,6 +49,7 @@ model User {
   tasksCreated  Task[]
   assignedTasks TaskAssigment[]
   refreshToken  Token[]
+  joinRequests  JoinRequest[]
 }
 
 model Tenant {
@@ -51,9 +58,10 @@ model Tenant {
   description String?  @db.Text
   createdAt   DateTime @default(now())
 
-  members     Member[]
-  tasks       Task[]
-  invitations Invitation[]
+  members      Member[]
+  tasks        Task[]
+  invitations  Invitation[]
+  joinRequests JoinRequest[]
 }
 
 model Task {
@@ -121,4 +129,17 @@ model Invitation {
   acceptedAt DateTime?
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model JoinRequest {
+  id        String            @id @default(uuid())
+  message   String?           @db.Text
+  status    JoinRequestStatus @default(PENDING)
+  userId    String
+  tenantId  String
+  createdAt DateTime          @default(now())
+  handledAt DateTime?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

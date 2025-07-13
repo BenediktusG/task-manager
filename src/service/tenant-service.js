@@ -4,7 +4,7 @@ import { AuthorizationError } from "../error/authorization-error.js";
 import { ConflictError } from "../error/conflict-error.js";
 import { NotFoundError } from "../error/not-found-error.js";
 import { extractMembers, extractTenants } from "../utils/tenantUtils.js";
-import { changeMemberRoleValidation, createTenantValidation, inviteUserValidation } from "../validation/tenant-validation.js"
+import { changeMemberRoleValidation, createTenantValidation, inviteUserValidation, joinRequestValidation } from "../validation/tenant-validation.js"
 import { validate } from "../validation/validation.js"
 
 const create = async (request, user) => {
@@ -613,6 +613,63 @@ const leaveTenant = async (tenantId, user) => {
     });
 };
 
+const joinTenant = async (request, tenantId, user) => {
+    const data = validate(joinRequestValidation, request);
+    const tenant = await prismaClient.tenant.findUnique({
+        where: {
+            id: tenantId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!tenant) {
+        throw new NotFoundError('Unable to do the action because of invalid tenant id', 'NOT_FOUND_TENANT');
+    }
+
+    const memberStatus = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: user.id,
+                tenantId: tenantId,
+            },
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (memberStatus) {
+        throw new ConflictError("Unable to send the join request because of you already become a member of this tenant", 'ALREADY_MEMBER');
+    }
+
+    const requestStatus = await prismaClient.joinRequest.findMany({
+        where: {
+            tenantId: tenantId,
+            userId: user.id,
+            status: 'PENDING',
+        },
+        select: {
+            id: true,
+        }
+    });
+
+    if (requestStatus.length > 0) {
+        throw new ConflictError('Unable to send the join request because you already have one', 'JOIN_REQUEST_ALREADY_PENDING');
+    }
+    data.tenantId = tenantId;
+    data.userId = user.id;
+    const result = await prismaClient.joinRequest.create({
+        data: data,
+        select: {
+            id: true,
+        },
+    });
+
+    return result.id;
+};  
+
 export default {
     create,
     getAssociatedTenants,
@@ -627,4 +684,5 @@ export default {
     editMemberRole,
     deleteMember,
     leaveTenant,
+    joinTenant,
 };
