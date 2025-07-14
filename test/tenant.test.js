@@ -2407,3 +2407,178 @@ describe('GET /tenants/:tenantId/join-requests', () => {
         expect(result.body.error.message.length).toBeGreaterThan(0);
     });
 });
+
+describe('GET /tenants/:tenantId/join-request/:requestId', () => {
+    let key;
+    beforeEach(() => {
+        key = generateKey();    
+    });
+    afterEach(async () => {
+        await removeAllData(key);
+    });
+    it('should return 200 ok when successfully get the join request', async () => {
+        const admin = await createUser(key);
+        const tenant = await createTenant(key);
+
+        await joinTenant(admin.id, tenant.id, 'ADMIN');
+        const user = await createUser(key);
+        const joinRequest = await sendJoinRequest(user.id, tenant.id);
+
+        const result = await supertest(web)
+            .get(`/tenants/${tenant.id}/join-requests/${joinRequest.id}`)
+            .set('Authorization', `Bearer ${admin.accessToken}`);
+        expect(result.status).toBe(200);
+
+        joinRequest.requestMessage = joinRequest.message;
+        joinRequest.handledBy = joinRequest.handlerUserId;
+        delete joinRequest.message;
+        delete joinRequest.handlerUserId;
+        delete joinRequest.user;
+
+        expect(result.body).toEqual({
+            success: true,
+            data: joinRequest,
+        });
+    });
+
+    it('should return 401 unauthorized when requested by an uauthenticated user', async () => {
+        const tenant = await createTenant(key);
+        const user = await createUser(key);
+        const joinRequest = await sendJoinRequest(user.id, tenant.id);
+
+        const result = await supertest(web)
+            .get(`/tenants/${tenant.id}/join-requests/${joinRequest.id}`);
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'AUTH_REQUIRED',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 401 unauthorized when access token is invalid', async () => {
+        const tenant = await createTenant(key);
+        const user = await createUser(key);
+        const joinRequest = await sendJoinRequest(user.id, tenant.id);
+
+        const result = await supertest(web)
+            .get(`/tenants/${tenant.id}/join-requests/${joinRequest.id}`)
+            .set('Authorization', `Bearer invalid-token`);
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'INVALID_ACCESS_TOKEN',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 403 forbidden when requested by a non-member user', async () => {
+        const admin = await createUser(key);
+        const tenant = await createTenant(key);
+        const user = await createUser(key);
+        const joinRequest = await sendJoinRequest(user.id, tenant.id);
+
+        const result = await supertest(web)
+            .get(`/tenants/${tenant.id}/join-requests/${joinRequest.id}`)
+            .set('Authorization', `Bearer ${admin.accessToken}`);
+        expect(result.status).toBe(403);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 403 forbidden when requested by a regular member', async () => {
+        const admin = await createUser(key);
+        const tenant = await createTenant(key);
+        const user = await createUser(key);
+        joinTenant(admin.id, tenant.id);
+        const joinRequest = await sendJoinRequest(user.id, tenant.id);
+
+        const result = await supertest(web)
+            .get(`/tenants/${tenant.id}/join-requests/${joinRequest.id}`)
+            .set('Authorization', `Bearer ${admin.accessToken}`);
+        expect(result.status).toBe(403);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 403 forbidden when requested by a manager', async () => {
+        const admin = await createUser(key);
+        const tenant = await createTenant(key);
+        const user = await createUser(key);
+        joinTenant(admin.id, tenant.id, 'MANAGER');
+        const joinRequest = await sendJoinRequest(user.id, tenant.id);
+
+        const result = await supertest(web)
+            .get(`/tenants/${tenant.id}/join-requests/${joinRequest.id}`)
+            .set('Authorization', `Bearer ${admin.accessToken}`);
+        expect(result.status).toBe(403);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 404 not found when tenant id is invalid', async () => {
+        const admin = await createUser(key);
+        const tenant = await createTenant(key);
+
+        await joinTenant(admin.id, tenant.id, 'ADMIN');
+        const user = await createUser(key);
+        const joinRequest = await sendJoinRequest(user.id, tenant.id);
+
+        const result = await supertest(web)
+            .get(`/tenants/invalid-tenant-id/join-requests/${joinRequest.id}`)
+            .set('Authorization', `Bearer ${admin.accessToken}`);
+        expect(result.status).toBe(404);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'NOT_FOUND_TENANT',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 404 not found when join request id is invalid', async () => {
+        const admin = await createUser(key);
+        const tenant = await createTenant(key);
+
+        await joinTenant(admin.id, tenant.id, 'ADMIN');
+
+        const result = await supertest(web)
+            .get(`/tenants/${tenant.id}/join-requests/invalid-id`)
+            .set('Authorization', `Bearer ${admin.accessToken}`);
+        expect(result.status).toBe(404);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'NOT_FOUND_JOIN_REQUEST',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+}); 

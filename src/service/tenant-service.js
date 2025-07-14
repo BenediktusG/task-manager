@@ -733,6 +733,56 @@ const getAllJoinRequests = async (tenantId, user) => {
     return result;
 };
 
+const getJoinRequestById = async (tenantId, requestId, user) => {
+    const tenant = await prismaClient.tenant.findUnique({
+        where: {
+            id: tenantId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!tenant) {
+        throw new NotFoundError('Failed to do the action because of invalid Tenant ID', 'NOT_FOUND_TENANT');
+    }
+
+    const member = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: user.id,
+                tenantId: tenantId,
+            }
+        },
+        select: {
+            role: true,
+        },
+    });
+    if (!member) {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    if (member.role !== 'ADMIN' && member.role !== 'SUPER_ADMIN') {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    const request = await prismaClient.joinRequest.findUnique({
+        where: {
+            id: requestId,
+            tenantId: tenantId,
+        },
+    });
+
+    if (!request) {
+        throw new NotFoundError('Unable to do the action because of invalid request ID', 'NOT_FOUND_JOIN_REQUEST');
+    }
+    request.requestMessage = request.message;
+    request.handledBy = request.handlerUserId;
+    delete request.message;
+    delete request.handlerUserId;
+    return request;
+}
+
 export default {
     create,
     getAssociatedTenants,
@@ -749,4 +799,5 @@ export default {
     leaveTenant,
     joinTenant,
     getAllJoinRequests,
+    getJoinRequestById,
 };
