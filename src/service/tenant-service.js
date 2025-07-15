@@ -4,7 +4,7 @@ import { AuthorizationError } from "../error/authorization-error.js";
 import { ConflictError } from "../error/conflict-error.js";
 import { NotFoundError } from "../error/not-found-error.js";
 import { extractMembers, extractTenants } from "../utils/tenantUtils.js";
-import { changeMemberRoleValidation, createTenantValidation, inviteUserValidation, joinRequestValidation } from "../validation/tenant-validation.js"
+import { changeMemberRoleValidation, createTenantValidation, handleJoinRequestValidation, inviteUserValidation, joinRequestValidation } from "../validation/tenant-validation.js"
 import { validate } from "../validation/validation.js"
 
 const create = async (request, user) => {
@@ -781,7 +781,95 @@ const getJoinRequestById = async (tenantId, requestId, user) => {
     delete request.message;
     delete request.handlerUserId;
     return request;
-}
+};
+
+const handleJoinRequest = async (request, tenantId, requestId, user) => {
+    const { status: responseStatus } =  validate(handleJoinRequestValidation, request);
+    const tenant = await prismaClient.tenant.findUnique({
+        where: {
+            id: tenantId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!tenant) {
+        throw new NotFoundError('Failed to do the action because of invalid Tenant ID', 'NOT_FOUND_TENANT');
+    }
+
+    const member = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: user.id,
+                tenantId: tenantId,
+            }
+        },
+        select: {
+            role: true,
+        },
+    });
+    if (!member) {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    if (member.role !== 'ADMIN' && member.role !== 'SUPER_ADMIN') {
+        throw new AuthorizationError('You are not authorized to do this action', 'UNAUTHORIZED_ACTION');
+    }
+
+    const requestData = await prismaClient.joinRequest.findUnique({
+        where: {
+            id: requestId,
+            tenantId: tenantId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!requestData) {
+        throw new NotFoundError('Unable to do the action because of invalid request ID', 'NOT_FOUND_JOIN_REQUEST');
+    }
+    const result = await prismaClient.joinRequest.update({
+        where: {
+            id: requestData.id,
+        },
+        data: {
+            status: responseStatus,
+            handledAt: new Date(),
+            handlerUserId: user.id,
+        },
+    });
+    if (responseStatus === 'ACCEPTED') {
+        const memberStatus = await prismaClient.member.findUnique({
+            where: {
+                userId_tenantId: {
+                    userId: result.userId,
+                    tenantId: tenantId,
+                },
+            },
+            select: {
+                id: true,
+            }
+        });
+
+        if (!memberStatus) {
+            await prismaClient.member.create({
+                data: {
+                    userId: result.userId,
+                    tenantId: tenantId,
+                    role: 'MEMBER',
+                },
+            });
+        }
+    }
+    result.requestMessage = result.message;
+    result.handledBy = result.handlerUserId;
+    delete result.id;
+    delete result.message;
+    delete result.handlerUserId;
+    return result;
+};
 
 export default {
     create,
@@ -800,4 +888,5 @@ export default {
     joinTenant,
     getAllJoinRequests,
     getJoinRequestById,
+    handleJoinRequest,
 };

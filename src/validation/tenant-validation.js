@@ -5,7 +5,13 @@ const Roles = {
     admin: 'ADMIN',
     manager: 'MANAGER',
     superAdmin: 'SUPER_ADMIN'
-}
+};
+
+const JoinRequestStatus = {
+    pending: 'PENDING',
+    accepted: 'ACCEPTED',
+    rejected: 'REJECTED',
+};
 
 const createTenantValidation = Joi.object({
     name: Joi.string().min(4).max(20).required(),
@@ -26,9 +32,14 @@ const joinRequestValidation = Joi.object({
     message: Joi.string().max(500).optional(),
 });
 
+const handleJoinRequestValidation = Joi.object({
+    status: Joi.string().valid(...Object.values(JoinRequestStatus)).required(),
+});
+
 export {
     createTenantValidation,
     inviteUserValidation,
     changeMemberRoleValidation,
     joinRequestValidation,
+    handleJoinRequestValidation,
 };

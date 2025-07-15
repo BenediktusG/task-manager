@@ -32,3 +32,4 @@ userRouter.delete('/tenants/:tenantId/members/:userId', tenantController.deleteM
 userRouter.post('/tenants/:tenantId/join', tenantController.joinTenant);
 userRouter.get('/tenants/:tenantId/join-requests', tenantController.getAllJoinRequests);
 userRouter.get('/tenants/:tenantId/join-requests/:requestId', tenantController.getJoinRequestById);
+userRouter.patch('/tenants/:tenantId/join-requests/:requestId', tenantController.handleJoinRequest);
