@@ -232,6 +232,28 @@ const getTaskById = async (taskId) => {
     });
 };
 
+const createTask = async (tenantId, creatorId, assignedUserIds = [], taskDetails = {}) => {
+    const defaultDetails = {
+        title: 'Test Task ' + new Date().getTime(),
+        description: 'This is a test task created for integration tests.',
+        due: new Date(Date.now() + 24 * 60 * 60 * 1000), // Due tomorrow
+        ...taskDetails,
+    };
+
+    return prismaClient.task.create({
+        data: {
+            ...defaultDetails,
+            tenantId: tenantId,
+            creatorId: creatorId,
+            assignedUsers: {
+                create: assignedUserIds.map(userId => ({
+                    userId: userId,
+                })),
+            },
+        },
+    });
+};
+
 export {
     generateKey,
     removeAllUsers,
@@ -252,4 +274,5 @@ export {
     checkJoinRequest,
     sendJoinRequest,
     getTaskById,
+    createTask,
 };

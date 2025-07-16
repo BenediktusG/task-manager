@@ -152,6 +152,79 @@ const create = async (request, tenantId, user) => {
     return finalResponse;
 };
 
+const getTaskById = async (tenantId, taskId, user) => {
+    // 1. Authorization: Verify the user is a member of the tenant.
+    const member = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: user.id,
+                tenantId: tenantId,
+            },
+        },
+    });
+
+    if (!member) {
+        throw new AuthorizationError('You are not authorized to access this resource', 'UNAUTHORIZED_ACTION');
+    }
+
+    // 2. Database Query: Fetch the task, ensuring it belongs to the correct tenant.
+    // This is a critical security check to prevent IDOR vulnerabilities.
+    const task = await prismaClient.task.findFirst({
+        where: {
+            id: taskId,
+            tenantId: tenantId, // Ensures the task is within the scoped tenant
+        },
+        select: {
+            id: true,
+            title: true,
+            description: true,
+            priority: true,
+            progress: true,
+            status: true,
+            tenantId: true,
+            creatorId: true, // Will be renamed to 'createdBy'
+            createdAt: true,
+            updatedAt: true,
+            due: true,
+            assignedUsers: { // Fetch the assigned users' details
+                select: {
+                    user: {
+                        select: {
+                            id: true,
+                            username: true,
+                            email: true,
+                        },
+                    },
+                },
+            },
+        },
+    });
+
+    // 3. Not Found Check: If no task is returned, throw an error.
+    if (!task) {
+        throw new NotFoundError('Task not found', 'NOT_FOUND_TASK');
+    }
+
+    // 4. Data Formatting: Transform the database result into the API response shape.
+    const formattedTask = {
+        ...task,
+        status: mapPrismaEnumToStatus(task.status),
+        createdBy: task.creatorId, // Rename for the final response
+        assignedTo: task.assignedUsers.map(assignment => ({
+            userId: assignment.user.id,
+            username: assignment.user.username,
+            email: assignment.user.email,
+        })),
+    };
+
+    // Clean up the original properties that were transformed or renamed
+    delete formattedTask.creatorId;
+    delete formattedTask.assignedUsers;
+
+    return formattedTask;
+};
+
 export default {
     create,
+    getTaskById,
 };

@@ -28,6 +28,30 @@ const create = async (req, res, next) => {
     }
 };
 
+const getTaskById = async (req, res, next) => {
+    try {
+        // 1. Parse required parameters from the HTTP request.
+        const { tenantId, taskId } = req.params;
+        const user = req.user; // From auth middleware
+
+        // 2. Delegate the business logic to the service layer.
+        // The service returns the perfectly formatted task DTO.
+        const result = await taskService.getTaskById(tenantId, taskId, user);
+
+        // 3. Format the successful HTTP response envelope.
+        res.status(200).json({
+            success: true,
+            data: result,
+        });
+
+    } catch (error) {
+        // 4. Pass any errors (e.g., NotFoundError, AuthorizationError)
+        // to the central error-handling middleware.
+        next(error);
+    }
+};
+
 export default {
     create,
+    getTaskById,
 };

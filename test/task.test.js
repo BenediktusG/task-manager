@@ -1,4 +1,4 @@
-import { createTenant, createUser, generateKey, getTaskById, joinTenant, removeAllData } from "./test-utils";
+import { createTask, createTenant, createUser, generateKey, getTaskById, joinTenant, removeAllData } from "./test-utils";
 import supertest from "supertest";
 import { web } from "../src/application/web";
 import { faker } from "@faker-js/faker";
@@ -297,5 +297,125 @@ describe('POST /tenants/:tenantId/tasks', () => {
                 message: expect.any(String),
             },
         });
+    });
+});
+
+
+describe('GET /tenants/:tenantId/tasks/:taskId', () => {
+    let key;
+    let managerUser, memberUser; // Renamed for clarity
+    let tenant;
+    let task;
+
+    beforeEach(async () => {
+        key = generateKey();
+        managerUser = await createUser(key); // This user can create tasks
+        memberUser = await createUser(key); // This user will be assigned the task
+        tenant = await createTenant(key);
+
+        // Assign correct roles
+        await joinTenant(managerUser.id, tenant.id, 'MANAGER');
+        await joinTenant(memberUser.id, tenant.id, 'MEMBER');
+
+        // Create a task using a user with the correct permissions
+        task = await createTask(tenant.id, managerUser.id, [memberUser.id]);
+    });
+
+    afterEach(async () => {
+        await removeAllData(key);
+    });
+
+    test('should get a task successfully with status 200', async () => {
+        // The user making the request can be any member of the tenant
+        const response = await supertest(web)
+            .get(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', `Bearer ${memberUser.accessToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({
+            success: true,
+            data: expect.any(Object),
+        });
+
+        // Verify the response against the API contract
+        expect(response.body.data).toEqual({
+            id: task.id,
+            title: task.title,
+            description: task.description,
+            priority: task.priority,
+            progress: task.progress,
+            status: 'todo', // Default status mapped
+            tenantId: tenant.id,
+            createdBy: managerUser.id, // Verify it was created by the manager
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            due: task.due.toISOString(),
+            assignedTo: [{
+                userId: memberUser.id,
+                username: memberUser.username,
+                email: memberUser.email,
+            }, ],
+        });
+    });
+
+    test('should fail with status 401 for missing access token', async () => {
+        const response = await supertest(web)
+            .get(`/tenants/${tenant.id}/tasks/${task.id}`);
+        // No Authorization header
+
+        expect(response.status).toBe(401);
+        expect(response.body).toEqual({
+            success: false,
+            error: {
+                code: 'AUTH_REQUIRED',
+                message: expect.any(String),
+            },
+        });
+    });
+
+    test('should fail with status 403 when user is not a member of the tenant', async () => {
+        const outsiderUser = await createUser(key); // This user is not in the tenant
+
+        const response = await supertest(web)
+            .get(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', `Bearer ${outsiderUser.accessToken}`);
+
+        expect(response.status).toBe(403);
+        expect(response.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: 'You are not authorized to access this resource',
+            },
+        });
+    });
+
+    test('should fail with status 404 for a non-existent task ID', async () => {
+        const fakeTaskId = faker.string.uuid();
+
+        const response = await supertest(web)
+            .get(`/tenants/${tenant.id}/tasks/${fakeTaskId}`)
+            .set('Authorization', `Bearer ${memberUser.accessToken}`);
+
+        expect(response.status).toBe(404);
+        expect(response.body).toEqual({
+            success: false,
+            error: {
+                code: 'NOT_FOUND_TASK',
+                message: 'Task not found',
+            },
+        });
+    });
+
+    test('should fail with status 403 for a non-existent tenant ID', async () => {
+        // Note: This will result in a 403 because the auth check (is member?) fails first.
+        const fakeTenantId = faker.string.uuid();
+
+        const response = await supertest(web)
+            .get(`/tenants/${fakeTenantId}/tasks/${task.id}`)
+            .set('Authorization', `Bearer ${memberUser.accessToken}`);
+
+        expect(response.status).toBe(403);
+        expect(response.body.error.code).toBe('UNAUTHORIZED_ACTION');
     });
 });
