@@ -74,7 +74,7 @@ model Task {
   status TaskStatus @default(NOT_STARTED)
   tenantId String
   creatorId String
-  createdAt DateTime
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   due DateTime
 

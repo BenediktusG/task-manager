@@ -10537,7 +10537,7 @@ export namespace Prisma {
     priority?: number
     progress?: number
     status?: $Enums.TaskStatus
-    createdAt: Date | string
+    createdAt?: Date | string
     updatedAt?: Date | string
     due: Date | string
     assignedUsers?: TaskAssigmentCreateNestedManyWithoutTaskInput
@@ -10554,7 +10554,7 @@ export namespace Prisma {
     status?: $Enums.TaskStatus
     tenantId: string
     creatorId: string
-    createdAt: Date | string
+    createdAt?: Date | string
     updatedAt?: Date | string
     due: Date | string
     assignedUsers?: TaskAssigmentUncheckedCreateNestedManyWithoutTaskInput
@@ -10599,7 +10599,7 @@ export namespace Prisma {
     status?: $Enums.TaskStatus
     tenantId: string
     creatorId: string
-    createdAt: Date | string
+    createdAt?: Date | string
     updatedAt?: Date | string
     due: Date | string
   }
@@ -12469,7 +12469,7 @@ export namespace Prisma {
     priority?: number
     progress?: number
     status?: $Enums.TaskStatus
-    createdAt: Date | string
+    createdAt?: Date | string
     updatedAt?: Date | string
     due: Date | string
     assignedUsers?: TaskAssigmentCreateNestedManyWithoutTaskInput
@@ -12484,7 +12484,7 @@ export namespace Prisma {
     progress?: number
     status?: $Enums.TaskStatus
     tenantId: string
-    createdAt: Date | string
+    createdAt?: Date | string
     updatedAt?: Date | string
     due: Date | string
     assignedUsers?: TaskAssigmentUncheckedCreateNestedManyWithoutTaskInput
@@ -12796,7 +12796,7 @@ export namespace Prisma {
     priority?: number
     progress?: number
     status?: $Enums.TaskStatus
-    createdAt: Date | string
+    createdAt?: Date | string
     updatedAt?: Date | string
     due: Date | string
     assignedUsers?: TaskAssigmentCreateNestedManyWithoutTaskInput
@@ -12811,7 +12811,7 @@ export namespace Prisma {
     progress?: number
     status?: $Enums.TaskStatus
     creatorId: string
-    createdAt: Date | string
+    createdAt?: Date | string
     updatedAt?: Date | string
     due: Date | string
     assignedUsers?: TaskAssigmentUncheckedCreateNestedManyWithoutTaskInput
@@ -13157,7 +13157,7 @@ export namespace Prisma {
     priority?: number
     progress?: number
     status?: $Enums.TaskStatus
-    createdAt: Date | string
+    createdAt?: Date | string
     updatedAt?: Date | string
     due: Date | string
     tenant: TenantCreateNestedOneWithoutTasksInput
@@ -13173,7 +13173,7 @@ export namespace Prisma {
     status?: $Enums.TaskStatus
     tenantId: string
     creatorId: string
-    createdAt: Date | string
+    createdAt?: Date | string
     updatedAt?: Date | string
     due: Date | string
   }
@@ -13695,7 +13695,7 @@ export namespace Prisma {
     progress?: number
     status?: $Enums.TaskStatus
     tenantId: string
-    createdAt: Date | string
+    createdAt?: Date | string
     updatedAt?: Date | string
     due: Date | string
   }
@@ -13909,7 +13909,7 @@ export namespace Prisma {
     progress?: number
     status?: $Enums.TaskStatus
     creatorId: string
-    createdAt: Date | string
+    createdAt?: Date | string
     updatedAt?: Date | string
     due: Date | string
   }

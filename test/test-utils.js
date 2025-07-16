@@ -224,6 +224,14 @@ const sendJoinRequest = async (userId, tenantId) => {
     return result;
 };
 
+const getTaskById = async (taskId) => {
+    return prismaClient.task.findUnique({
+        where: {
+            id: taskId,
+        },
+    });
+};
+
 export {
     generateKey,
     removeAllUsers,
@@ -243,4 +251,5 @@ export {
     createInvitationUsingEmail,
     checkJoinRequest,
     sendJoinRequest,
+    getTaskById,
 };

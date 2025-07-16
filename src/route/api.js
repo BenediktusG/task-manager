@@ -2,6 +2,7 @@ import express from 'express';
 import { authMiddleware } from '../middleware/auth-middleware.js';
 import userController from '../controller/user-controller.js';
 import tenantController from '../controller/tenant-controller.js';
+import taskController from '../controller/task-controller.js';
 
 export const userRouter = new express.Router();
 userRouter.use(authMiddleware);
@@ -33,3 +34,6 @@ userRouter.post('/tenants/:tenantId/join', tenantController.joinTenant);
 userRouter.get('/tenants/:tenantId/join-requests', tenantController.getAllJoinRequests);
 userRouter.get('/tenants/:tenantId/join-requests/:requestId', tenantController.getJoinRequestById);
 userRouter.patch('/tenants/:tenantId/join-requests/:requestId', tenantController.handleJoinRequest);
+
+// Task API
+userRouter.post('/tenants/:tenantId/tasks', taskController.create);
