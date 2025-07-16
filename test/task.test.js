@@ -419,3 +419,135 @@ describe('GET /tenants/:tenantId/tasks/:taskId', () => {
         expect(response.body.error.code).toBe('UNAUTHORIZED_ACTION');
     });
 });
+
+describe('GET /tenants/:tenantId/tasks', () => {
+    let key;
+    let managerUser; // User with permission to create tasks
+    let memberUser; // User with permission to view tasks
+    let tenant;
+    let task1, task2;
+
+    beforeEach(async () => {
+        key = generateKey();
+        managerUser = await createUser(key);
+        memberUser = await createUser(key);
+        tenant = await createTenant(key);
+
+        // Assign correct roles
+        await joinTenant(managerUser.id, tenant.id, 'MANAGER');
+        await joinTenant(memberUser.id, tenant.id, 'MEMBER');
+
+        // Create tasks using a user with the correct permissions (manager)
+        task1 = await createTask(tenant.id, managerUser.id, [], {
+            title: 'First Task',
+            priority: 1,
+            progress: 10
+        });
+        task2 = await createTask(tenant.id, managerUser.id, [], {
+            title: 'Second Task',
+            priority: 5,
+            progress: 50
+        });
+    });
+
+    afterEach(async () => {
+        await removeAllData(key);
+    });
+
+    test('should get all tasks successfully with status 200', async () => {
+        // A regular member can view the tasks
+        const response = await supertest(web)
+            .get(`/tenants/${tenant.id}/tasks`)
+            .set('Authorization', `Bearer ${memberUser.accessToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({
+            success: true,
+            data: {
+                tasks: expect.arrayContaining([
+                    expect.objectContaining({
+                        id: task1.id,
+                        title: task1.title,
+                        priority: task1.priority,
+                        progress: task1.progress,
+                    }),
+                    expect.objectContaining({
+                        id: task2.id,
+                        title: task2.title,
+                        priority: task2.priority,
+                        progress: task2.progress,
+                    }),
+                ]),
+            },
+        });
+        // Also check the length to ensure no extra tasks are returned
+        expect(response.body.data.tasks).toHaveLength(2);
+    });
+
+    test('should return an empty array if tenant has no tasks', async () => {
+        // Create a new tenant with a member but no tasks
+        const emptyTenant = await createTenant(key);
+        const newUser = await createUser(key);
+        await joinTenant(newUser.id, emptyTenant.id, 'MEMBER');
+
+        const response = await supertest(web)
+            .get(`/tenants/${emptyTenant.id}/tasks`)
+            .set('Authorization', `Bearer ${newUser.accessToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({
+            success: true,
+            data: {
+                tasks: [],
+            },
+        });
+    });
+
+    test('should fail with status 401 for missing access token', async () => {
+        const response = await supertest(web)
+            .get(`/tenants/${tenant.id}/tasks`);
+
+        expect(response.status).toBe(401);
+        expect(response.body).toEqual({
+            success: false,
+            error: {
+                code: 'AUTH_REQUIRED',
+                message: expect.any(String),
+            },
+        });
+    });
+
+    test('should fail with status 403 when user is not a member of the tenant', async () => {
+        const outsiderUser = await createUser(key);
+
+        const response = await supertest(web)
+            .get(`/tenants/${tenant.id}/tasks`)
+            .set('Authorization', `Bearer ${outsiderUser.accessToken}`);
+
+        expect(response.status).toBe(403);
+        expect(response.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: 'You are not authorized to access this resource',
+            },
+        });
+    });
+
+    test('should fail with status 403 for a non-existent tenant ID', async () => {
+        const fakeTenantId = faker.string.uuid();
+
+        const response = await supertest(web)
+            .get(`/tenants/${fakeTenantId}/tasks`)
+            .set('Authorization', `Bearer ${memberUser.accessToken}`);
+
+        expect(response.status).toBe(403);
+        expect(response.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: 'You are not authorized to access this resource',
+            },
+        });
+    });
+});

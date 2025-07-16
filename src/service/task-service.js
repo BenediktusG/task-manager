@@ -224,7 +224,51 @@ const getTaskById = async (tenantId, taskId, user) => {
     return formattedTask;
 };
 
+const getAllTasks = async (tenantId, user) => {
+    // 1. Authorization: Verify the user is a member of the tenant.
+    // This is a crucial step to ensure users can only see tasks from their own tenants.
+    const member = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: user.id,
+                tenantId: tenantId,
+            },
+        },
+        select: {
+            id: true
+        }, // We only need to check for existence.
+    });
+
+    if (!member) {
+        throw new AuthorizationError('You are not authorized to access this resource', 'UNAUTHORIZED_ACTION');
+    }
+
+    // 2. Database Query: Fetch all tasks that belong to the specified tenant.
+    const tasks = await prismaClient.task.findMany({
+        where: {
+            tenantId: tenantId,
+        },
+        // Use a 'select' clause to fetch only the fields required by the API documentation.
+        // This makes the query lightweight and efficient.
+        select: {
+            id: true,
+            title: true,
+            priority: true,
+            progress: true,
+        },
+        orderBy: {
+            createdAt: 'desc', // Optional: Order tasks by most recently created.
+        },
+    });
+
+    // 3. Format the final response object to match the documentation.
+    return {
+        tasks: tasks,
+    };
+};
+
 export default {
     create,
     getTaskById,
+    getAllTasks,
 };

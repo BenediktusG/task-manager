@@ -51,7 +51,30 @@ const getTaskById = async (req, res, next) => {
     }
 };
 
+const getAllTasks = async (req, res, next) => {
+    try {
+        // 1. Parse required parameters from the HTTP request.
+        const { tenantId } = req.params;
+        const user = req.user; // From auth middleware
+
+        // 2. Delegate the business logic to the service layer.
+        const result = await taskService.getAllTasks(tenantId, user);
+
+        // 3. Format the successful HTTP response envelope.
+        res.status(200).json({
+            success: true,
+            data: result,
+        });
+
+    } catch (error) {
+        // 4. Pass any errors (e.g., AuthorizationError)
+        // to the central error-handling middleware.
+        next(error);
+    }
+};
+
 export default {
     create,
     getTaskById,
+    getAllTasks,
 };
