@@ -39,3 +39,4 @@ userRouter.patch('/tenants/:tenantId/join-requests/:requestId', tenantController
 userRouter.post('/tenants/:tenantId/tasks', taskController.create);
 userRouter.get('/tenants/:tenantId/tasks', taskController.getAllTasks);
 userRouter.get('/tenants/:tenantId/tasks/:taskId', taskController.getTaskById);
+userRouter.put('/tenants/:tenantId/tasks/:taskId', taskController.editTask);

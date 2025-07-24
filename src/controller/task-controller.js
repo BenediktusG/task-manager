@@ -73,8 +73,21 @@ const getAllTasks = async (req, res, next) => {
     }
 };
 
+const editTask = async (req, res, next) => {
+    try {
+        const result = await taskService.editTask(req.body, req.params.tenantId, req.params.taskId, req.user);
+        res.status(200).json({
+            success: true,
+            data: result,
+        });
+    } catch (e) {
+        next(e);
+    }
+};
+
 export default {
     create,
     getTaskById,
     getAllTasks,
+    editTask,
 };

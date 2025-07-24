@@ -2,6 +2,8 @@ import { createTask, createTenant, createUser, generateKey, getTaskById, joinTen
 import supertest from "supertest";
 import { web } from "../src/application/web";
 import { faker } from "@faker-js/faker";
+import { mapPrismaEnumToStatus } from "../src/utils/taskUtils";
+import { logger } from "../src/application/logging";
 
 describe('POST /tenants/:tenantId/tasks', () => {
     let key;
@@ -458,8 +460,7 @@ describe('GET /tenants/:tenantId/tasks', () => {
         // A regular member can view the tasks
         const response = await supertest(web)
             .get(`/tenants/${tenant.id}/tasks`)
-            .set('Authorization', `Bearer ${memberUser.accessToken}`);
-
+            .set('Authorization', `Bearer ${memberUser.accessToken}`);                        
         expect(response.status).toBe(200);
         expect(response.body).toEqual({
             success: true,
@@ -549,5 +550,284 @@ describe('GET /tenants/:tenantId/tasks', () => {
                 message: 'You are not authorized to access this resource',
             },
         });
+    });
+});
+
+describe('PUT /tenants/:tenantId/tasks/:taskId', () => {
+    let key;
+    let tenant;
+    let managerUser;
+    let memberUser;
+    let task;
+    beforeEach(async () => {
+        key = generateKey();
+        managerUser = await createUser(key);
+        memberUser = await createUser(key);
+        tenant = await createTenant(key);
+        await joinTenant(managerUser.id, tenant.id, 'MANAGER');
+        await joinTenant(memberUser.id, tenant.id);
+        task = await createTask(tenant.id, managerUser.id, [memberUser.id]);
+        if (task.status) {
+            task.status = mapPrismaEnumToStatus(task.status);
+        }
+    });
+    afterEach(async () => {
+        await removeAllData(key);
+    });
+
+    it('should return 200 ok when successfully updated the task information', async () => {
+        const newTaskInformation = {
+            title: "New Task Title",
+            description: "New Task description",
+            priority: 4,
+            progress: 49,
+            assignedTo: [],
+            due: new Date(),
+        };
+        const result = await supertest(web)
+            .put(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', `Bearer ${managerUser.accessToken}`)
+            .send(newTaskInformation);
+        expect(result.status).toBe(200);
+        const expectedData = {
+            ...task,
+            ...newTaskInformation,
+            createdAt: task.createdAt.toISOString(),
+            updatedAt: result.body.data.updatedAt,
+        };
+        expectedData.due = expectedData.due.toISOString();
+        expect(result.body).toEqual({
+            success: true,
+            data: expectedData,
+        });
+    });
+
+    it('should return 200 ok when assigned user trying to edit authorized fields', async () => {
+        const newTaskInformation = {
+            title: task.title,
+            description: task.description,
+            priority: 4,
+            progress: 49,
+            assignedTo: [memberUser.id],
+            due: task.due.toISOString(),
+        };
+        const result = await supertest(web)
+            .put(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', `Bearer ${memberUser.accessToken}`)
+            .send(newTaskInformation);
+        logger.debug(result.body);
+        expect(result.status).toBe(200);
+        const expectedData = {
+            ...task,
+            ...newTaskInformation,
+            createdAt: task.createdAt.toISOString(),
+            updatedAt: result.body.data.updatedAt,
+        };
+        expectedData.assignedTo = [{
+            email: memberUser.email,
+            userId: memberUser.id,
+            username: memberUser.username,
+        }];
+        if (typeof expectedData.due === Date) {
+            expectedData.due = expectedData.due.toISOString();
+        }
+        expect(result.body).toEqual({
+            success: true,
+            data: expectedData,
+        });
+    });
+
+    it('should return 400 bad request when request body is missing', async () => {
+        const result = await supertest(web)
+            .put(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', `Bearer ${managerUser.accessToken}`);
+        expect(result.status).toBe(400);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'VALIDATION_ERROR',
+                message: expect.any(String),
+                details: expect.any(Object),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+        expect(result.body.error.details[0]).toEqual({
+            field: expect.any(String),
+            message: expect.any(String),
+        });
+        expect(result.body.error.details[0].field.length).toBeGreaterThan(0);
+        expect(result.body.error.details[0].message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 401 unauthorized when requested by an authenticated user', async () => {
+        const newTaskInformation = {
+            title: "New Task Title",
+            description: "New Task description",
+            priority: 4,
+            progress: 49,
+            assignedTo: [],
+            due: new Date(),
+        };
+        const result = await supertest(web)
+            .put(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .send(newTaskInformation);
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'AUTH_REQUIRED',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 401 unauthorized when access token is invalid', async () => {
+        const newTaskInformation = {
+            title: "New Task Title",
+            description: "New Task description",
+            priority: 4,
+            progress: 49,
+            assignedTo: [],
+            due: new Date(),
+        };
+        const result = await supertest(web)
+            .put(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', 'Bearer invalid-token')
+            .send(newTaskInformation);
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'INVALID_ACCESS_TOKEN',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 403 forbidden if requested by a non-member user', async () => {
+        const user = await createUser();
+        const newTaskInformation = {
+            title: "New Task Title",
+            description: "New Task description",
+            priority: 4,
+            progress: 49,
+            assignedTo: [],
+            due: new Date(),
+        };
+        const result = await supertest(web)
+            .put(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', `Bearer ${user.accessToken}`)
+            .send(newTaskInformation);
+        expect(result.status).toBe(403);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 403 forbidden if requested by a regular member', async () => {
+        const user = await createUser();
+        await joinTenant(user.id, tenant.id);
+        const newTaskInformation = {
+            title: "New Task Title",
+            description: "New Task description",
+            priority: 4,
+            progress: 49,
+            assignedTo: [],
+            due: new Date(),
+        };
+        const result = await supertest(web)
+            .put(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', `Bearer ${user.accessToken}`)
+            .send(newTaskInformation);
+        expect(result.status).toBe(403);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 403 forbidden if assigned user trying to edit unauthorized fields', async () => {
+        const newTaskInformation = {
+            title: "New Task Title",
+            description: "New Task description",
+            priority: 4,
+            progress: 49,
+            assignedTo: [],
+            due: new Date(),
+        };
+        const result = await supertest(web)
+            .put(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', `Bearer ${memberUser.accessToken}`)
+            .send(newTaskInformation);
+        expect(result.status).toBe(403);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 403 forbidden if requested by an admin', async () => {
+        const user = await createUser();
+        await joinTenant(user.id, tenant.id, 'ADMIN');
+        const newTaskInformation = {
+            title: "New Task Title",
+            description: "New Task description",
+            priority: 4,
+            progress: 49,
+            assignedTo: [],
+            due: new Date(),
+        };
+        const result = await supertest(web)
+            .put(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', `Bearer ${user.accessToken}`)
+            .send(newTaskInformation);
+        expect(result.status).toBe(403);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 404 when task id is invalid', async () => {
+        const newTaskInformation = {
+            title: "New Task Title",
+            description: "New Task description",
+            priority: 4,
+            progress: 49,
+            assignedTo: [],
+            due: new Date(),
+        };
+        const result = await supertest(web)
+            .put(`/tenants/${tenant.id}/tasks/invalid-task-id`)
+            .set('Authorization', `Bearer ${managerUser.accessToken}`)
+            .send(newTaskInformation);
+        expect(result.status).toBe(404);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'NOT_FOUND_TASK',
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.error.message.length).toBeGreaterThan(0);
     });
 });

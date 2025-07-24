@@ -4,37 +4,7 @@ import { NotFoundError } from "../error/not-found-error";
 import { AuthorizationError } from "../error/authorization-error";
 import { validate } from "../validation/validation";
 import { BadRequestError } from "../error/bad-request-error";
-
-
-/**
- * Maps the public-facing status from the request to the internal Prisma enum.
- * @param {string} status - The status from the request body ('todo', 'inProgress', 'done').
- * @returns {string} The corresponding Prisma TaskStatus enum ('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED').
- */
-const mapStatusToPrismaEnum = (status) => {
-    const statusMap = {
-        todo: 'NOT_STARTED',
-        inProgress: 'IN_PROGRESS',
-        done: 'COMPLETED',
-    };
-    // Return the mapped status, or the default if the input is undefined or invalid.
-    return status ? statusMap[status] : 'NOT_STARTED';
-};
-
-/**
- * Maps the internal Prisma enum for status back to the public-facing string.
- * @param {string} prismaStatus - The TaskStatus enum from Prisma ('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED').
- * @returns {string} The corresponding public-facing status string ('todo', 'inProgress', 'done').
- */
-const mapPrismaEnumToStatus = (prismaStatus) => {
-    const statusMap = {
-        NOT_STARTED: 'todo',
-        IN_PROGRESS: 'inProgress',
-        COMPLETED: 'done',
-    };
-    return statusMap[prismaStatus];
-};
-
+import { mapStatusToPrismaEnum, mapPrismaEnumToStatus, compareArrayWithoutOrder } from "../utils/taskUtils";
 
 /**
  * Service function to create a new task within a tenant.
@@ -169,7 +139,7 @@ const getTaskById = async (tenantId, taskId, user) => {
 
     // 2. Database Query: Fetch the task, ensuring it belongs to the correct tenant.
     // This is a critical security check to prevent IDOR vulnerabilities.
-    const task = await prismaClient.task.findFirst({
+    const task = await prismaClient.task.findUnique({
         where: {
             id: taskId,
             tenantId: tenantId, // Ensures the task is within the scoped tenant
@@ -267,8 +237,142 @@ const getAllTasks = async (tenantId, user) => {
     };
 };
 
+const editTask = async (request, tenantId, taskId, user) => {
+    const validatedRequest = validate(createTaskValidation, request);
+    const task = await prismaClient.task.findUnique({
+        where: {
+            tenantId: tenantId,
+            id: taskId,
+        },
+        include: {
+            assignedUsers: {
+                select: {
+                    userId: true,
+                }
+            }
+        },  
+    });
+    if (!task) {
+        throw new NotFoundError('Task not found', 'NOT_FOUND_TASK');
+    }
+    const member = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: user.id,
+                tenantId: tenantId,
+            },
+        },
+        select: {
+            role: true,
+        },
+    });
+    if (!member) {
+        throw new AuthorizationError('You are not authorized to do the action', 'UNAUTHORIZED_ACTION');
+    }
+    let assignedTo;
+    if (task.assignedUsers) {
+        assignedTo = task.assignedUsers.map((data) => data.userId);
+    }
+    if (member.role !== 'MANAGER' && member.role !== 'SUPER_ADMIN') {
+        if (task.assignedUsers) {
+            if (task.assignedUsers.some((data) => data.userId === user.id)) {
+                if (validatedRequest.title !== task.title || validatedRequest.description !== task.description || validatedRequest.due.toISOString() !== task.due.toISOString()) {
+                    throw new AuthorizationError('You are not authorized to do the action', 'UNAUTHORIZED_ACTION');
+                }
+                if (!compareArrayWithoutOrder(assignedTo, validatedRequest.assignedTo)) {
+                    throw new AuthorizationError('You are not authorized to do the action', 'UNAUTHORIZED_ACTION');
+                }
+            } else {
+                throw new AuthorizationError('You are not authorized to do the action', 'UNAUTHORIZED_ACTION');
+            }
+        } else {
+           throw new AuthorizationError('You are not authorized to do the action', 'UNAUTHORIZED_ACTION');
+        }
+    }
+    const prismaData = {...validatedRequest};
+    if (prismaData.status) {
+        prismaData.status = mapStatusToPrismaEnum(validatedRequest.status);
+    }
+    delete prismaData.assignedTo;
+    const assignedToObject = {};
+    const deletedUser = [];
+    const addedUser = [];
+    if (validatedRequest.assignedTo) {
+        for (let item of validatedRequest.assignedTo) {
+            assignedToObject[item] = 1;
+        }
+    }
+    if (assignedTo) {
+        for (let item of assignedTo) {
+            if (!assignedToObject[item]) {
+                assignedToObject[item] = 0;
+            }
+            assignedToObject[item]--;
+        }
+    }
+    for (let key in assignedToObject) {
+        if (assignedToObject[key] == -1) {
+            deletedUser.push(key);
+        } else if (assignedToObject[key] == 1) {
+            addedUser.push({
+                userId: key,
+                tenantId: tenantId,
+            });
+        }
+    }
+    await prismaClient.taskAssigment.createMany({
+        data: addedUser,
+    });
+
+    await prismaClient.taskAssigment.deleteMany({
+        where: {
+            userId: {
+                in: deletedUser,
+            },
+            taskId: taskId,
+        },
+    });
+    const result = await prismaClient.task.update({
+        where: {
+            id: taskId,
+        },
+        data: prismaData,
+        include: {
+            assignedUsers: {
+                select: {
+                    userId: true,
+                    user: {
+                        select: {
+                            username: true,
+                            email: true,
+                        },
+                    },
+                },
+            },
+        },
+    });
+    const resultAssignedTo = result.assignedUsers.map((data) => {
+        const newData = {
+            ...data,
+            ...data.user,
+        };
+        delete newData.user;
+        return newData;
+    });
+    const formattedResult = {
+        ...result,
+        assignedTo: resultAssignedTo,
+    };
+    if (formattedResult.status) {
+        formattedResult.status = mapPrismaEnumToStatus(formattedResult.status);
+    }
+    delete formattedResult.assignedUsers;
+    return formattedResult;
+};
+
 export default {
     create,
     getTaskById,
     getAllTasks,
+    editTask,
 };
