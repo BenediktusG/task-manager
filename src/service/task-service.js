@@ -370,9 +370,53 @@ const editTask = async (request, tenantId, taskId, user) => {
     return formattedResult;
 };
 
+const deleteTask = async (tenantId, taskId, user) => {
+    const task = await prismaClient.task.findUnique({
+        where: {
+            tenantId: tenantId,
+            id: taskId,
+        },
+        include: {
+            assignedUsers: {
+                select: {
+                    userId: true,
+                }
+            }
+        },  
+    });
+    if (!task) {
+        throw new NotFoundError('Task not found', 'NOT_FOUND_TASK');
+    }
+    const member = await prismaClient.member.findUnique({
+        where: {
+            userId_tenantId: {
+                userId: user.id,
+                tenantId: tenantId,
+            },
+        },
+        select: {
+            role: true,
+        },
+    });
+    if (!member) {
+        throw new AuthorizationError('You are not authorized to do the action', 'UNAUTHORIZED_ACTION');
+    }
+
+    if (member.role !== 'MANAGER' && member.role !== 'SUPER_ADMIN') {
+        throw new AuthorizationError('You are not authorized to do the action', 'UNAUTHORIZED_ACTION');
+    }
+
+    await prismaClient.task.delete({
+        where: {
+            id: taskId,
+        },
+    });
+};
+
 export default {
     create,
     getTaskById,
     getAllTasks,
     editTask,
+    deleteTask,
 };

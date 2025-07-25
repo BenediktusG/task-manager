@@ -831,3 +831,142 @@ describe('PUT /tenants/:tenantId/tasks/:taskId', () => {
         expect(result.body.error.message.length).toBeGreaterThan(0);
     });
 });
+
+describe('DELETE /tenants/:tenantId/tasks/:taskId', () => {
+    let key;
+    let tenant;
+    let managerUser;
+    let memberUser;
+    let task;
+    beforeEach(async () => {
+        key = generateKey();
+        managerUser = await createUser(key);
+        memberUser = await createUser(key);
+        tenant = await createTenant(key);
+        await joinTenant(managerUser.id, tenant.id, 'MANAGER');
+        await joinTenant(memberUser.id, tenant.id);
+        task = await createTask(tenant.id, managerUser.id, [memberUser.id]);
+        if (task.status) {
+            task.status = mapPrismaEnumToStatus(task.status);
+        }
+    });
+    afterEach(async () => {
+        await removeAllData(key);
+    });
+
+    it('should return 200 ok when successfully deleted the task', async () => {
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', `Bearer ${managerUser.accessToken}`);
+        
+        expect(result.status).toBe(200);
+        expect(result.body).toEqual({
+            success: true,
+            data: {
+                message: expect.any(String),
+            },
+        });
+        expect(result.body.data.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 401 unauthorized when requested by an unauthenticated user', async () => {
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/tasks/${task.id}`);
+
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'AUTH_REQUIRED',
+                message: expect.any(String),
+            },
+        });
+
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 401 unauthorized when access token is invalid', async () => {
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', `Bearer invalid-token`);
+
+        expect(result.status).toBe(401);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'INVALID_ACCESS_TOKEN',
+                message: expect.any(String),
+            },
+        });
+
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 403 forbidden when requested by a non-member user', async () => {
+        const user = await createUser();
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', `Bearer ${user.accessToken}`);
+        expect(result.status).toBe(403);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: expect.any(String),
+            },
+        });
+
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 403 forbidden when requested by a regular member', async () => {
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', `Bearer ${memberUser.accessToken}`);
+        expect(result.status).toBe(403);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: expect.any(String),
+            },
+        });
+
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 403 forbidden when requested by an admin', async () => {
+        const user = await createUser();
+        await joinTenant(user.id, tenant.id, 'ADMIN');
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/tasks/${task.id}`)
+            .set('Authorization', `Bearer ${user.accessToken}`);
+        expect(result.status).toBe(403);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED_ACTION',
+                message: expect.any(String),
+            },
+        });
+
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+
+    it('should return 404 not found when task id is invalid', async () => {
+        const result = await supertest(web)
+            .delete(`/tenants/${tenant.id}/tasks/invalid-task-id`)
+            .set('Authorization', `Bearer ${managerUser.accessToken}`);
+        
+        expect(result.status).toBe(404);
+        expect(result.body).toEqual({
+            success: false,
+            error: {
+                code: 'NOT_FOUND_TASK',
+                message: expect.any(String),
+            },
+        });
+
+        expect(result.body.error.message.length).toBeGreaterThan(0);
+    });
+});
