@@ -871,6 +871,17 @@ const handleJoinRequest = async (request, tenantId, requestId, user) => {
     return result;
 };
 
+const getAllTenants = async (userId) => {
+    return prismaClient.member.findMany({
+        where: {
+            userId: userId,
+        },
+        select: {
+            tenantId: true,
+        },
+    });
+};
+
 export default {
     create,
     getAssociatedTenants,
@@ -889,4 +900,5 @@ export default {
     getAllJoinRequests,
     getJoinRequestById,
     handleJoinRequest,
+    getAllTenants
 };

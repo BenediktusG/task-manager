@@ -1,10 +1,10 @@
-import { createTaskValidation } from "../validation/task-validation";
-import { prismaClient } from "../application/database";
-import { NotFoundError } from "../error/not-found-error";
-import { AuthorizationError } from "../error/authorization-error";
-import { validate } from "../validation/validation";
-import { BadRequestError } from "../error/bad-request-error";
-import { mapStatusToPrismaEnum, mapPrismaEnumToStatus, compareArrayWithoutOrder } from "../utils/taskUtils";
+import { createTaskValidation } from "../validation/task-validation.js";
+import { prismaClient } from "../application/database.js";
+import { NotFoundError } from "../error/not-found-error.js";
+import { AuthorizationError } from "../error/authorization-error.js";
+import { validate } from "../validation/validation.js";
+import { BadRequestError } from "../error/bad-request-error.js";
+import { mapStatusToPrismaEnum, mapPrismaEnumToStatus, compareArrayWithoutOrder } from "../utils/taskUtils.js";
 
 /**
  * Service function to create a new task within a tenant.

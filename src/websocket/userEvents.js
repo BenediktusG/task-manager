@@ -1,0 +1,17 @@
+import { redis } from "../application/redis.js";
+import tenantService from "../service/tenant-service.js";
+import { verifyToken } from "../utils/jwtUtils.js";
+
+export const registerUserEvents = (io, socket) => {
+    socket.on('login', async (token) => {
+        const information = verifyToken(token);
+        if (information) {
+            const { userId } = information;
+            redis.set(`socketId:${userId}`, socket.id, 'EX', 1800);
+            const tenants = await tenantService.getAllTenants(userId);
+            tenants.forEach(tenant => {
+                socket.join(tenant);
+            });
+        }
+    });
+};

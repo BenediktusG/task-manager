@@ -9,5 +9,16 @@ services:
     volumes:
       - task-manager-mysql-data:/var/lib/mysql
     
+  task-manager-redis:
+    image: redis:8
+    container_name: task-manager-redis
+    ports:
+      - 6379:6379
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+    - task-manager-redis-data:/data
+    env_file:
+    - .env
 volumes:
   task-manager-mysql-data:
+  task-manager-redis-data:
