@@ -1,48 +1,82 @@
-asyncapi: '2.6.0'
-info: 
+asyncapi: 3.0.0
+info:
   title: Multi-Tenant Task Manager WebSocket API
-  version: '1.0.0'
-  description: Real-time WebSocket API for managing tasks (create, update, delete, assign).
-
+  version: 1.0.0
+  description: 'Real-time WebSocket API for managing tasks (create, update, delete, assign).'
 servers:
   production:
-    url: https://localhost:3000/
+    host: 'localhost:3000'
+    pathname: /
     protocol: ws
     description: Production WebSocket server
-
 channels:
   task/created:
-    description: Channel for new task creation events
-    subscribe:
-      summary: Receive notification when a new task is created.
-      operationId: onTaskCreated
-      message:
+    address: task/created
+    messages:
+      onTaskCreated.message:
         $ref: '#/components/messages/TaskCreated'
-  
+    description: Channel for new task creation events
   task/updated:
+    address: task/updated
+    messages:
+      onTaskUpdated.message:
+        $ref: '#/components/messages/TaskUpdated'
     description: Channel for task updates
-    subscribe:
-      summary: Receive notification when a task is updated.
-      operationId: onTaskUpdated
-      message:
-          $ref: '#/components/messages/TaskUpdated'
-  
   task/assigned:
-    description: Channel for task assignment events.
-    subscribe:
-      summary: Receive notification when a user is assigned to a task.
-      operationId: onTaskAssigned
-      message:
+    address: task/assigned
+    messages:
+      onTaskAssigned.message:
         $ref: '#/components/messages/TaskAssigned'
-  
+    description: Channel for task assignment events.
   task/deleted:
-    description: Channel for task deletion events.
-    subscribe:
-      summary: Receive notification when a task is deleted.
-      operationId: onTaskDeleted
-      message:
+    address: task/deleted
+    messages:
+      onTaskDeleted.message:
         $ref: '#/components/messages/TaskDeleted'
+    description: Channel for task deletion events.
+  user/login:
+    address: user/login
+    messages:
+      userLogin.message:
+        $ref: '#/components/messages/UserLogin'
     
+
+operations:
+  onTaskCreated:
+    action: send
+    channel:
+      $ref: '#/channels/task~1created'
+    summary: Receive notification when a new task is created.
+    messages:
+      - $ref: '#/channels/task~1created/messages/onTaskCreated.message'
+  onTaskUpdated:
+    action: send
+    channel:
+      $ref: '#/channels/task~1updated'
+    summary: Receive notification when a task is updated.
+    messages:
+      - $ref: '#/channels/task~1updated/messages/onTaskUpdated.message'
+  onTaskAssigned:
+    action: send
+    channel:
+      $ref: '#/channels/task~1assigned'
+    summary: Receive notification when a user is assigned to a task.
+    messages:
+      - $ref: '#/channels/task~1assigned/messages/onTaskAssigned.message'
+  onTaskDeleted:
+    action: send
+    channel:
+      $ref: '#/channels/task~1deleted'
+    summary: Receive notification when a task is deleted.
+    messages:
+      - $ref: '#/channels/task~1deleted/messages/onTaskDeleted.message'
+  userLogin:
+    action: receive
+    channel:
+      $ref: '#/channels/user~1login'
+    summary: Send the login event to the server right after user successfully logged in the rest api server
+    messages:
+      - $ref: '#/channels/user~1login/messages/userLogin.message'
 
 components:
   messages:
@@ -52,33 +86,38 @@ components:
       summary: Message sent when a new task is created.
       payload:
         $ref: '#/components/schemas/TaskCreated'
-    
-    TaskUpdated:  
+    TaskUpdated:
       name: TaskUpdated
       title: Task Updated Message
       summary: Message sent when a task is updated.
       payload:
         $ref: '#/components/schemas/TaskUpdated'
-    
-    TaskDeleted: 
+    TaskDeleted:
       name: TaskDeleted
       title: Task Deleted Message
       summary: Message sent when a task is deleted.
       payload:
         $ref: '#/components/schemas/TaskDeleted'
-    
     TaskAssigned:
       name: TaskAssigned
       title: Task Assigned Message
       summary: Message sent when a user is assigned a task.
       payload:
         $ref: '#/components/schemas/TaskAssigned'
-
+    UserLogin:
+      name: UserLogin
+      title: User Login Message
+      summary: logged user access token
+      payload:
+        $ref: '#/components/messages/UserLogin'
   schemas:
     TaskCreated:
       type: object
-      properties: 
-        id: 
+      properties:
+        taskId:
+          type: string
+          format: uuid
+        tenantId:
           type: string
           format: uuid
         title:
@@ -90,11 +129,13 @@ components:
           format: date-time
         createdBy:
           type: string
-
     TaskUpdated:
       type: object
-      properties: 
-        id: 
+      properties:
+        taskId:
+          type: string
+          format: uuid
+        tenantId:
           type: string
           format: uuid
         title:
@@ -107,11 +148,13 @@ components:
         updatedBy:
           type: string
           format: uuid
-    
     TaskDeleted:
       type: object
-      properties: 
-        id:
+      properties:
+        taskId:
+          type: string
+          format: uuid
+        tenantId:
           type: string
           format: uuid
         deletedAt:
@@ -120,11 +163,13 @@ components:
         deletedBy:
           type: string
           format: uuid
-
     TaskAssigned:
       type: object
       properties:
-        taskId: 
+        taskId:
+          type: string
+          format: uuid
+        tenantId:
           type: string
           format: uuid
         assignedUserId:
@@ -133,3 +178,5 @@ components:
         assignedAt:
           type: string
           format: date-time
+    UserLogin:
+      type: string

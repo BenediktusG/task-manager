@@ -5,6 +5,7 @@ import { AuthorizationError } from "../error/authorization-error.js";
 import { validate } from "../validation/validation.js";
 import { BadRequestError } from "../error/bad-request-error.js";
 import { mapStatusToPrismaEnum, mapPrismaEnumToStatus, compareArrayWithoutOrder } from "../utils/taskUtils.js";
+import taskNotification from "./task-notification.js";
 
 /**
  * Service function to create a new task within a tenant.
@@ -103,6 +104,15 @@ const create = async (request, tenantId, user) => {
                 },
             },
         },
+    });
+
+    taskNotification.emitTaskCreated({
+        taskId: result.id,
+        tenantId: result.tenantId,
+        title: result.title,
+        description: result.description,
+        createdAt: result.createdAt,
+        createdBy: result.creatorId,
     });
 
     // 6. Format the response to exactly match the required output.
@@ -351,6 +361,16 @@ const editTask = async (request, tenantId, taskId, user) => {
             },
         },
     });
+
+    taskNotification.emitTaskUpdated({
+        taskId: result.id,
+        tenantId: result.tenantId,
+        title: result.title,
+        description: result.description,
+        createdAt: result.createdAt,
+        createdBy: result.creatorId,
+    });
+
     const resultAssignedTo = result.assignedUsers.map((data) => {
         const newData = {
             ...data,
