@@ -7,7 +7,7 @@ export const registerUserEvents = (socket) => {
         const information = verifyToken(token);
         if (information) {
             const { userId } = information;
-            redis.set(`socketId:${userId}`, socket.id, 'EX', 900);
+            redis.set(`socketId:${userId}`, socket.id, 'EX', process.env.REDIS_TTL);
             const tenants = await tenantService.getAllTenants(userId);
             tenants.forEach(tenant => {
                 socket.join(`tenant${tenant}`);

@@ -1,5 +1,5 @@
-import { redis } from "../application/redis";
-import { io } from "../application/web"
+import { redis } from "../application/redis.js";
+import { io } from "../application/web.js"
 
 const emitTaskCreated = (task) => {
     io.to(`tenant:${task.tenantId}`).emit('task/created', task);
