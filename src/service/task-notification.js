@@ -1,3 +1,4 @@
+import { redis } from "../application/redis";
 import { io } from "../application/web"
 
 const emitTaskCreated = (task) => {
@@ -8,7 +9,18 @@ const emitTaskUpdated = (task) => {
     io.to(`tenant:${task.tenantId}`).emit('task/updated', task);
 };
 
+const emitTaskAssigned = (task) => {
+    const socketId = redis.get(`socketId:${task.assignedUserId}`);
+    io.to(socketId).emit(task);
+};
+
+const emitTaskDeleted = (task) => {
+    io.to(`tenant:${task.tenantId}`).emit(task);
+};
+
 export default {
     emitTaskCreated,
     emitTaskUpdated,
+    emitTaskAssigned,
+    emitTaskDeleted,
 };

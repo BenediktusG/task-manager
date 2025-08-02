@@ -115,6 +115,15 @@ const create = async (request, tenantId, user) => {
         createdBy: result.creatorId,
     });
 
+    result.assignedUsers.forEach( userId => {
+        taskNotification.emitTaskAssigned({
+            taskId: result.id,
+            tenantId: result.tenantId,
+            assignedUserId: userId,
+            assignedAt: result.createdAt,
+        });
+    });
+
     // 6. Format the response to exactly match the required output.
     const finalResponse = {
         ...result,
@@ -334,6 +343,15 @@ const editTask = async (request, tenantId, taskId, user) => {
         data: addedUser,
     });
 
+    addedUser.forEach(addedUserId => {
+        taskNotification.emitTaskAssigned({
+            taskId: taskId,
+            tenantId: tenantId,
+            assignedUserId: addedUserId,
+            assignedAt: new Date(),
+        });
+    });
+
     await prismaClient.taskAssigment.deleteMany({
         where: {
             userId: {
@@ -426,10 +444,17 @@ const deleteTask = async (tenantId, taskId, user) => {
         throw new AuthorizationError('You are not authorized to do the action', 'UNAUTHORIZED_ACTION');
     }
 
-    await prismaClient.task.delete({
+    const result = await prismaClient.task.delete({
         where: {
             id: taskId,
         },
+    });
+    
+    taskNotification.emitTaskDeleted({
+        taskId: result.id,
+        tenantId: result.tenantId,
+        deletedAt: new Date(),
+        deletedBy: user.id,
     });
 };
 
